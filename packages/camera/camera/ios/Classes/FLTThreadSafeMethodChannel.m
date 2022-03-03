@@ -20,9 +20,13 @@
 }
 
 - (void)invokeMethod:(NSString *)method arguments:(id)arguments {
-  FLTEnsureToRunOnMainQueue(^{
+  if (NSThread.isMainThread) {
     [self.channel invokeMethod:method arguments:arguments];
-  });
+  } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self.channel invokeMethod:method arguments:arguments];
+    });
+  }
 }
 
 @end

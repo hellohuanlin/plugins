@@ -47,9 +47,13 @@
  * Sends result to flutterResult on the main thread.
  */
 - (void)send:(id _Nullable)result {
-  FLTEnsureToRunOnMainQueue(^{
+  if (NSThread.isMainThread) {
     self.flutterResult(result);
-  });
+  } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      self.flutterResult(result);
+    });
+  }
 }
 
 @end

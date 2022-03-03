@@ -21,21 +21,34 @@
 
 - (void)registerTexture:(NSObject<FlutterTexture> *)texture
              completion:(void (^)(int64_t))completion {
-  FLTEnsureToRunOnMainQueue(^{
+  dispatch_block_t block = ^{
     completion([self.registry registerTexture:texture]);
-  });
+  };
+  if (NSThread.isMainThread) {
+    block();
+  } else {
+    dispatch_async(dispatch_get_main_queue(), block);
+  }
 }
 
 - (void)textureFrameAvailable:(int64_t)textureId {
-  FLTEnsureToRunOnMainQueue(^{
+  if (NSThread.isMainThread) {
     [self.registry textureFrameAvailable:textureId];
-  });
+  } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self.registry textureFrameAvailable:textureId];
+    });
+  }
 }
 
 - (void)unregisterTexture:(int64_t)textureId {
-  FLTEnsureToRunOnMainQueue(^{
+  if (NSThread.isMainThread) {
     [self.registry unregisterTexture:textureId];
-  });
+  } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self.registry unregisterTexture:textureId];
+    });
+  }
 }
 
 @end

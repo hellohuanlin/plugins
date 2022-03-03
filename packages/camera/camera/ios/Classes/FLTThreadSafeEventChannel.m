@@ -21,10 +21,15 @@
 
 - (void)setStreamHandler:(NSObject<FlutterStreamHandler> *)handler
               completion:(void (^)(void))completion {
-  FLTEnsureToRunOnMainQueue(^{
+  dispatch_block_t block = ^{
     [self.channel setStreamHandler:handler];
     completion();
-  });
+  };
+  if (NSThread.isMainThread) {
+    block();
+  } else {
+    dispatch_async(dispatch_get_main_queue(), block);
+  }
 }
 
 @end
