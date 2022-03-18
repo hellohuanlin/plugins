@@ -187,27 +187,26 @@ NS_INLINE CGFloat radiansToDegrees(CGFloat radians) {
   return [self initWithPlayerItem:item frameUpdater:frameUpdater];
 }
 
+// Fix the transform for the given track accordingly.
+// See also: https://stackoverflow.com/a/64161545/13235500
 - (CGAffineTransform)fixTransform:(AVAssetTrack *)videoTrack {
-  CGAffineTransform transform = videoTrack.preferredTransform;
-  // TODO(@recastrodiaz): why do we need to do this? Why is the preferredTransform incorrect?
-  // At least 2 user videos show a black screen when in portrait mode if we directly use the
-  // videoTrack.preferredTransform Setting tx to the height of the video instead of 0, properly
-  // displays the video https://github.com/flutter/flutter/issues/17606#issuecomment-413473181
-  if (transform.tx == 0 && transform.ty == 0) {
-    NSInteger rotationDegrees = (NSInteger)round(radiansToDegrees(atan2(transform.b, transform.a)));
-    NSLog(@"TX and TY are 0. Rotation: %ld. Natural width,height: %f, %f", (long)rotationDegrees,
-          videoTrack.naturalSize.width, videoTrack.naturalSize.height);
-    if (rotationDegrees == 90) {
-      NSLog(@"Setting transform tx");
-      transform.tx = videoTrack.naturalSize.height;
-      transform.ty = 0;
-    } else if (rotationDegrees == 270) {
-      NSLog(@"Setting transform ty");
-      transform.tx = 0;
-      transform.ty = videoTrack.naturalSize.width;
-    }
+  CGAffineTransform t = videoTrack.preferredTransform;
+  CGSize size = videoTrack.naturalSize;
+  t.tx = 0;
+  t.ty = 0;
+  if (t.a == -1) {
+    t.tx = size.width;
   }
-  return transform;
+  if (t.b == -1) {
+    t.ty = size.width;
+  }
+  if (t.c == -1) {
+    t.tx = size.height;
+  }
+  if (t.d == -1) {
+    t.ty = size.height;
+  }
+  return t;
 }
 
 - (instancetype)initWithPlayerItem:(AVPlayerItem *)item

@@ -1,3 +1,7 @@
+## 2.3.2
+
+* Apply transform accordingly for videos.
+
 ## 2.3.1
 
 * Renames internal method channels to avoid potential confusion with the
