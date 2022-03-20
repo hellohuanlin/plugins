@@ -10,6 +10,7 @@
 
 @interface FLTVideoPlayer : NSObject <FlutterStreamHandler>
 @property(readonly, nonatomic) AVPlayer *player;
+@property(readonly, nonatomic) CGAffineTransform preferredTransform;
 @end
 
 @interface FLTVideoPlayerPlugin (Test) <FLTAVFoundationVideoPlayerApi>
@@ -119,6 +120,44 @@
   XCTAssertEqualObjects(videoInitialization[@"height"], @720);
   XCTAssertEqualObjects(videoInitialization[@"width"], @1280);
   XCTAssertEqualWithAccuracy([videoInitialization[@"duration"] intValue], 4000, 200);
+}
+
+- (void)testTransformFix {
+  NSObject<FlutterPluginRegistry> *registry =
+      (NSObject<FlutterPluginRegistry> *)[[UIApplication sharedApplication] delegate];
+  NSObject<FlutterPluginRegistrar> *registrar = [registry registrarForPlugin:@"TestTransformFix"];
+  FLTVideoPlayerPlugin *videoPlayerPlugin =
+      (FLTVideoPlayerPlugin *)[[FLTVideoPlayerPlugin alloc] initWithRegistrar:registrar];
+
+  FlutterError *error;
+  [videoPlayerPlugin initialize:&error];
+  XCTAssertNil(error);
+
+  FLTCreateMessage *create = [FLTCreateMessage
+      makeWithAsset:nil
+                uri:@"https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
+        packageName:nil
+         formatHint:nil
+        httpHeaders:@{}];
+  FLTTextureMessage *textureMessage = [videoPlayerPlugin create:create error:&error];
+  XCTAssertNil(error);
+  XCTAssertNotNil(textureMessage);
+  FLTVideoPlayer *player = videoPlayerPlugin.playersByTextureId[textureMessage.textureId];
+  XCTAssertNotNil(player);
+  XCTestExpectation *initializedExpectation = [self expectationWithDescription:@"initialized"];
+  __block NSDictionary<NSString *, id> *initializationEvent;
+  [player onListenWithArguments:nil
+                      eventSink:^(NSDictionary<NSString *, id> *event) {
+                        if ([event[@"event"] isEqualToString:@"initialized"]) {
+                          initializationEvent = event;
+                          XCTAssertEqual(event.count, 4);
+                          [initializedExpectation fulfill];
+                        }
+                      }];
+  [self waitForExpectationsWithTimeout:30.0 handler:nil];
+  CGAffineTransform transform = player.preferredTransform;
+  XCTAssertEqual(transform.tx, 0.0f);
+  XCTAssertEqual(transform.ty, 0.0f);
 }
 
 - (NSDictionary<NSString *, id> *)testPlugin:(FLTVideoPlayerPlugin *)videoPlayerPlugin
