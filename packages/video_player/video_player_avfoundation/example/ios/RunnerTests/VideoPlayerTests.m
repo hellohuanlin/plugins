@@ -145,12 +145,9 @@
   FLTVideoPlayer *player = videoPlayerPlugin.playersByTextureId[textureMessage.textureId];
   XCTAssertNotNil(player);
   XCTestExpectation *initializedExpectation = [self expectationWithDescription:@"initialized"];
-  __block NSDictionary<NSString *, id> *initializationEvent;
   [player onListenWithArguments:nil
                       eventSink:^(NSDictionary<NSString *, id> *event) {
                         if ([event[@"event"] isEqualToString:@"initialized"]) {
-                          initializationEvent = event;
-                          XCTAssertEqual(event.count, 4);
                           [initializedExpectation fulfill];
                         }
                       }];
