@@ -647,6 +647,7 @@ void CaptureControllerImpl::ResumePreview() {
   }
 }
 
+
 // Handles capture engine events.
 // Called via IMFCaptureEngineOnEventCallback implementation.
 // Implements CaptureEngineObserver::OnEvent.
@@ -655,6 +656,9 @@ void CaptureControllerImpl::OnEvent(IMFMediaEvent* event) {
       capture_engine_state_ != CaptureEngineState::kInitializing) {
     return;
   }
+
+  // Called by windows
+
 
   GUID extended_type_guid;
   if (SUCCEEDED(event->GetExtendedType(&extended_type_guid))) {
@@ -688,7 +692,11 @@ void CaptureControllerImpl::OnEvent(IMFMediaEvent* event) {
     } else if (extended_type_guid == MF_CAPTURE_ENGINE_PHOTO_TAKEN) {
       OnPicture(SUCCEEDED(event_hr), error);
     } else if (extended_type_guid == MF_CAPTURE_ENGINE_CAMERA_STREAM_BLOCKED) {
+
+    // permission error
       // TODO: Inform capture state to flutter.
+      // camera.cpp
+      OnCaptureEngineError(event_hr, "CameraPermissionDenied", error);
     } else if (extended_type_guid ==
                MF_CAPTURE_ENGINE_CAMERA_STREAM_UNBLOCKED) {
       // TODO: Inform capture state to flutter.
@@ -735,10 +743,10 @@ void CaptureControllerImpl::OnCaptureEngineInitialized(
 }
 
 // Handles CaptureEngineError event and informs CaptureControllerListener.
-void CaptureControllerImpl::OnCaptureEngineError(HRESULT hr,
-                                                 const std::string& error) {
+void CaptureControllerImpl::OnCaptureEngineError(HRESULT hr, const std::string& errorCode,
+                                                 const std::string& errorMessage) {
   if (capture_controller_listener_) {
-    capture_controller_listener_->OnCaptureError(error);
+    capture_controller_listener_->OnCaptureError(errorCode, errorMessage);
   }
 
   // TODO: If MF_CAPTURE_ENGINE_ERROR is returned,

@@ -240,17 +240,22 @@ void CameraImpl::OnVideoRecordSucceeded(const std::string& file_path,
 
 void CameraImpl::OnVideoRecordFailed(const std::string& error){};
 
-void CameraImpl::OnCaptureError(const std::string& error) {
+void CameraImpl::OnCaptureError(const std:string& errorCode, const std::string& errorMessage) {
   if (messenger_ && camera_id_ >= 0) {
     auto channel = GetMethodChannel();
 
     std::unique_ptr<EncodableValue> message_data =
         std::make_unique<EncodableValue>(EncodableMap(
             {{EncodableValue("description"), EncodableValue(error)}}));
+    // if things go wrong, send notification
     channel->InvokeMethod(kErrorEvent, std::move(message_data));
   }
 
-  SendErrorForPendingResults("capture_error", error);
+  // replying to flutter calls
+  // e.g. flutter calls controller.createCamera(), which is pending
+  // then permission denied
+  // then we send errors to all pending calls
+  SendErrorForPendingResults(errorCode, errorMessage);
 }
 
 void CameraImpl::OnCameraClosing() {

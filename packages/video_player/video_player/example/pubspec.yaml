@@ -17,6 +17,10 @@ dependencies:
     # the parent directory to use the current plugin's version.
     path: ../
 
+dependency_overrides:
+  video_player_avfoundation:
+    path: ../../video_player_avfoundation
+
 dev_dependencies:
   flutter_driver:
     sdk: flutter
