@@ -1,9 +1,14 @@
 # Uncomment this line to define a global platform for your project
 # platform :ios, '9.0'
 
+
+# This is to fix this issue:
+# [!] Using Swift static libraries with custom module maps is currently not supported. Please build `camera_avfoundation` as a framework or remove the custom module map.
+
+use_frameworks!
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
-
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
