@@ -11,16 +11,17 @@ import Foundation
 
   @objc public enum QueueSpecific: Int {
     case captureSession
+    case io
   }
 
-  private static let specificKey = DispatchSpecificKey<Int>()
+  private static let specificKey = DispatchSpecificKey<QueueSpecific>()
 
   @objc public static func isOnQueue(specific: QueueSpecific) -> Bool {
-    return DispatchQueue.getSpecific(key: specificKey) == specific.rawValue
+    return DispatchQueue.getSpecific(key: specificKey) == specific
   }
 
   @objc public static func setSpecific(_ specific: QueueSpecific, for queue: DispatchQueue) {
-    queue.setSpecific(key: specificKey, value: specific.rawValue)
+    queue.setSpecific(key: specificKey, value: specific)
   }
 
 }

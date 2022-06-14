@@ -104,15 +104,14 @@
       [self expectationWithDescription:@"Must complete with file path if success to write file."];
 
   dispatch_queue_t ioQueue = dispatch_queue_create("test", NULL);
-  const char *ioQueueSpecific = "io_queue_specific";
-  dispatch_queue_set_specific(ioQueue, ioQueueSpecific, (void *)ioQueueSpecific, NULL);
+  [SwiftQueueUtils setSpecific:QueueSpecificIo for:ioQueue];
 
   // Do not use OCMClassMock for NSData because some XCTest APIs uses NSData (e.g.
   // `XCTRunnerIDESession::logDebugMessage:`) on a private queue.
   id mockData = OCMPartialMock([NSData data]);
   OCMStub([mockData writeToFile:OCMOCK_ANY options:NSDataWritingAtomic error:[OCMArg setTo:nil]])
       .andDo(^(NSInvocation *invocation) {
-        if (dispatch_get_specific(ioQueueSpecific)) {
+        if ([SwiftQueueUtils isOnQueueWithSpecific:QueueSpecificIo]) {
           [writeFileQueueExpectation fulfill];
         }
       })
@@ -128,7 +127,7 @@
 
   [delegate handlePhotoCaptureResultWithError:nil
                             photoDataProvider:^NSData * {
-                              if (dispatch_get_specific(ioQueueSpecific)) {
+                                if ([SwiftQueueUtils isOnQueueWithSpecific:QueueSpecificIo]) {
                                 [dataProviderQueueExpectation fulfill];
                               }
                               return mockData;

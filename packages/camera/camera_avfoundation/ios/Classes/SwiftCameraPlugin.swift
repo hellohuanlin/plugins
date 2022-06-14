@@ -112,7 +112,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         return [
           "name": device.uniqueID,
           "lensFacing": lensFacing,
-          "sensorOrientatoin": 90
+          "sensorOrientation": NSNumber(integerLiteral: 90),
         ]
       }
       result.sendSuccess(withData: reply)
@@ -172,6 +172,8 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         camera?.startVideoRecording(with: result)
       case "stopVideoRecording":
         camera?.stopVideoRecording(with: result)
+      case "pauseVideoRecording":
+        camera?.pauseVideoRecording(with: result)
       case "resumeVideoRecording":
         camera?.resumeVideoRecording(with: result)
       case "getMaxZoomLevel":
@@ -280,7 +282,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         result.sendError(error)
       } else {
         self.camera?.close()
-
+        self.camera = cam
         self.textureRegistry.register(cam) { textureId in
           result.sendSuccess(withData: [
             "cameraId": NSNumber(integerLiteral: Int(textureId)),

@@ -22,8 +22,8 @@
                 @"Must send error to result if save photo delegate completes with error."];
 
   dispatch_queue_t captureSessionQueue = dispatch_queue_create("capture_session_queue", NULL);
-  dispatch_queue_set_specific(captureSessionQueue, FLTCaptureSessionQueueSpecific,
-                              (void *)FLTCaptureSessionQueueSpecific, NULL);
+
+  [SwiftQueueUtils setSpecific:QueueSpecificCaptureSession for:captureSessionQueue];
   FLTCam *cam = FLTCreateCamWithCaptureSessionQueue(captureSessionQueue);
   AVCapturePhotoSettings *settings = [AVCapturePhotoSettings photoSettings];
   id mockSettings = OCMClassMock([AVCapturePhotoSettings class]);
@@ -61,8 +61,9 @@
                 @"Must send file path to result if save photo delegate completes with file path."];
 
   dispatch_queue_t captureSessionQueue = dispatch_queue_create("capture_session_queue", NULL);
-  dispatch_queue_set_specific(captureSessionQueue, FLTCaptureSessionQueueSpecific,
-                              (void *)FLTCaptureSessionQueueSpecific, NULL);
+
+  [SwiftQueueUtils setSpecific:QueueSpecificCaptureSession for:captureSessionQueue];
+
   FLTCam *cam = FLTCreateCamWithCaptureSessionQueue(captureSessionQueue);
 
   AVCapturePhotoSettings *settings = [AVCapturePhotoSettings photoSettings];

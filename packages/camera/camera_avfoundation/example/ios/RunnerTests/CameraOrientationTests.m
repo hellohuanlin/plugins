@@ -54,14 +54,12 @@
       expectationWithDescription:@"Orientation update must happen on the capture session queue"];
 
   CameraPlugin *camera = [[CameraPlugin alloc] initWithRegistry:nil messenger:nil];
-  const char *captureSessionQueueSpecific = "capture_session_queue";
-  dispatch_queue_set_specific(camera.captureSessionQueue, captureSessionQueueSpecific,
-                              (void *)captureSessionQueueSpecific, NULL);
+  [SwiftQueueUtils setSpecific:QueueSpecificCaptureSession for:camera.captureSessionQueue];
   FLTCam *mockCam = OCMClassMock([FLTCam class]);
   camera.camera = mockCam;
   OCMStub([mockCam setDeviceOrientation:UIDeviceOrientationLandscapeLeft])
       .andDo(^(NSInvocation *invocation) {
-        if (dispatch_get_specific(captureSessionQueueSpecific)) {
+        if ([SwiftQueueUtils isOnQueueWithSpecific:QueueSpecificCaptureSession]) {
           [queueExpectation fulfill];
         }
       });
