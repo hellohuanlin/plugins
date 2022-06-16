@@ -6,7 +6,7 @@
 #import "FLTCam_Test.h"
 #import "FLTSavePhotoDelegate.h"
 #import "QueueUtils.h"
-#import <camera_avfoundation/camera_avfoundation-Swift.h>
+#import "camera_avfoundation-Swift.h"
 
 @import CoreMotion;
 #import <libkern/OSAtomic.h>

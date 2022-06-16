@@ -15,7 +15,7 @@
 #import "FLTThreadSafeMethodChannel.h"
 #import "FLTThreadSafeTextureRegistry.h"
 #import "QueueUtils.h"
-#import <camera_avfoundation/camera_avfoundation-Swift.h>
+#import "camera_avfoundation-Swift.h"
 
 @interface CameraPlugin ()
 @property(readonly, nonatomic) FLTThreadSafeTextureRegistry *registry;
