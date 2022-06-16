@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 @import camera_avfoundation;
-@import camera_avfoundation.Test;
 @import XCTest;
 
 @interface CameraCaptureSessionQueueRaceConditionTests : XCTestCase

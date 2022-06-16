@@ -13,3 +13,4 @@ FOUNDATION_EXPORT const unsigned char cameraVersionString[];
 #import <camera_avfoundation/FLTThreadSafeMethodChannel.h>
 #import <camera_avfoundation/FLTCam.h>
 
+#import <camera_avfoundation/CameraProperties.h>
