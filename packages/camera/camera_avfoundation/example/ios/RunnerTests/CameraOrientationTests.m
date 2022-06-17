@@ -15,7 +15,7 @@
 
 - (void)testOrientationNotifications {
   id mockMessenger = OCMProtocolMock(@protocol(FlutterBinaryMessenger));
-  CameraPlugin *cameraPlugin = [[CameraPlugin alloc] initWithRegistry:nil messenger:mockMessenger];
+  SwiftCameraPlugin *cameraPlugin = [[SwiftCameraPlugin alloc] initWithRegistry:nil messenger:mockMessenger];
 
   [mockMessenger setExpectationOrderMatters:YES];
 
@@ -52,7 +52,7 @@
   XCTestExpectation *queueExpectation = [self
       expectationWithDescription:@"Orientation update must happen on the capture session queue"];
 
-  CameraPlugin *camera = [[CameraPlugin alloc] initWithRegistry:nil messenger:nil];
+  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:nil messenger:nil];
   [SwiftQueueUtils setSpecific:QueueSpecificCaptureSession for:camera.captureSessionQueue];
   FLTCam *mockCam = OCMClassMock([FLTCam class]);
   camera.camera = mockCam;
@@ -70,7 +70,7 @@
 
 - (void)rotate:(UIDeviceOrientation)deviceOrientation
     expectedChannelOrientation:(NSString *)channelOrientation
-                  cameraPlugin:(CameraPlugin *)cameraPlugin
+                  cameraPlugin:(SwiftCameraPlugin *)cameraPlugin
                      messenger:(NSObject<FlutterBinaryMessenger> *)messenger {
   XCTestExpectation *orientationExpectation = [self expectationWithDescription:channelOrientation];
 

@@ -11,7 +11,7 @@
 @implementation CameraCaptureSessionQueueRaceConditionTests
 
 - (void)testFixForCaptureSessionQueueNullPointerCrashDueToRaceCondition {
-  CameraPlugin *camera = [[CameraPlugin alloc] initWithRegistry:nil messenger:nil];
+  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:nil messenger:nil];
 
   XCTestExpectation *disposeExpectation =
       [self expectationWithDescription:@"dispose's result block must be called"];

@@ -14,7 +14,7 @@
 @implementation CameraMethodChannelTests
 
 - (void)testCreate_ShouldCallResultOnMainThread {
-  CameraPlugin *camera = [[CameraPlugin alloc] initWithRegistry:nil messenger:nil];
+  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:nil messenger:nil];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Result finished"];
 

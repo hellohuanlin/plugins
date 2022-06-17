@@ -14,23 +14,28 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "plugins.flutter.io/camera", binaryMessenger: registrar.messenger())
     let instance = SwiftCameraPlugin(
-      textureRegistry: registrar.textures(),
+      registry: registrar.textures(),
       messenger: registrar.messenger())
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
   private let textureRegistry: FLTThreadSafeTextureRegistry
   private let messenger: FlutterBinaryMessenger
-  private let captureSessionQueue: DispatchQueue
+
+  @objc
+  public let captureSessionQueue: DispatchQueue
+
   private let deviceEventMethodChannel: FLTThreadSafeMethodChannel
 
-  private var camera: FLTCam? = nil
+  @objc
+  public var camera: FLTCam? = nil
 
-  init(
-    textureRegistry: FlutterTextureRegistry,
+  @objc
+  public init(
+    registry: FlutterTextureRegistry,
     messenger: FlutterBinaryMessenger)
   {
-    self.textureRegistry = FLTThreadSafeTextureRegistry(textureRegistry: textureRegistry)
+    self.textureRegistry = FLTThreadSafeTextureRegistry(textureRegistry: registry)
     self.messenger = messenger
     captureSessionQueue = DispatchQueue(label: "io.flutter.camera.captureSessionQueue")
 
@@ -56,7 +61,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   }
 
   @objc
-  private func orientationChanged(_ notification: NSNotification) {
+  public func orientationChanged(_ notification: NSNotification) {
     let device = notification.object as! UIDevice
     let orientation = device.orientation
 
@@ -83,7 +88,8 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  private func handleAsync(_ call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
+  @objc
+  public func handleAsync(_ call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
 
     switch call.method {
     case "availableCameras":
@@ -126,11 +132,10 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
       result.sendSuccess()
     case _:
       let argsMap = call.arguments as? [String:Any]
-      let cameraId = (argsMap?["cameraId"] as? NSNumber)?.int64Value
+      let cameraId = (argsMap?["cameraId"] as? NSNumber)?.int64Value ?? 0
 
       switch call.method {
       case "initialize":
-        guard let cameraId = cameraId else { return }
         guard let camera = camera else { return }
         if let videoFormatValue = argsMap?["imageFormatGroup"] as? String {
           camera.videoFormat = FLTGetVideoFormatFromString(videoFormatValue)
@@ -161,7 +166,6 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
       case "takePicture":
         camera?.capture(toFile: result)
       case "dispose":
-        guard let cameraId = cameraId else { return }
         textureRegistry.unregisterTexture(cameraId)
         camera?.close()
         result.sendSuccess()
@@ -197,12 +201,8 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         camera?.setExposurePointWith(result, x: x, y: y)
 
       case "getMinExposureOffset":
-        guard let camera = camera else {
-          return
-        }
-
+        guard let camera = camera else { return }
         result.sendSuccess(withData: camera.captureDevice.minExposureTargetBias)
-
       case "getMaxExposureOffset":
         guard let camera = camera else {
           return
@@ -265,18 +265,24 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   }
 
-  private func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
+  @objc
+  public func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
     guard let argMap = call.arguments as? [String:Any] else { return }
-    guard let cameraName = argMap["cameraName"] as? String,
-          let resolutionPreset = argMap["resolutionPreset"] as? String
-    else { return }
 
     let enableAudio = (argMap["enableAudio"] as? NSNumber)?.boolValue ?? false
+    let cameraName = argMap["cameraName"] as? String ?? ""
+    let resolutionPreset = argMap["resolutionPreset"] as? String ?? ""
 
     captureSessionQueue.async {
 
       var error: NSError?
-      let cam = FLTCam(cameraName: cameraName, resolutionPreset: resolutionPreset, enableAudio: enableAudio, orientation: UIDevice.current.orientation, captureSessionQueue: self.captureSessionQueue, error: &error)
+      let cam = FLTCam(
+        cameraName: cameraName,
+        resolutionPreset: resolutionPreset,
+        enableAudio: enableAudio,
+        orientation: UIDevice.current.orientation,
+        captureSessionQueue: self.captureSessionQueue,
+        error: &error)
 
       if let error = error {
         result.sendError(error)
