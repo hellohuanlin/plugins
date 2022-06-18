@@ -22,8 +22,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   private let textureRegistry: FLTThreadSafeTextureRegistry
   private let messenger: FlutterBinaryMessenger
 
-  @objc
-  public let captureSessionQueue: DispatchQueue
+  private let captureSessionQueue: DispatchQueue
 
   private let deviceEventMethodChannel: FLTThreadSafeMethodChannel
 
@@ -265,8 +264,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   }
 
-  @objc
-  public func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
+  private func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
     guard let argMap = call.arguments as? [String:Any] else { return }
 
     let enableAudio = (argMap["enableAudio"] as? NSNumber)?.boolValue ?? false
@@ -298,3 +296,14 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     }
   }
 }
+
+#if DEBUG
+extension SwiftCameraPlugin {
+
+  @objc
+  public var test_captureSessionQueue: DispatchQueue {
+    return self.captureSessionQueue
+  }
+
+}
+#endif

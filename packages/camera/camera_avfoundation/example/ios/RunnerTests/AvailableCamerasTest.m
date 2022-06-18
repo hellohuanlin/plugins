@@ -15,7 +15,8 @@
 
 - (void)testAvailableCamerasShouldReturnAllCamerasOnMultiCameraIPhone {
 
-  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:nil messenger:nil];
+  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:OCMProtocolMock(@protocol(FlutterTextureRegistry)) messenger:OCMProtocolMock(@protocol(FlutterBinaryMessenger))];
+
 
   XCTestExpectation *expectation =
       [[XCTestExpectation alloc] initWithDescription:@"Result finished"];
@@ -76,7 +77,8 @@
 }
 - (void)testAvailableCamerasShouldReturnOneCameraOnSingleCameraIPhone {
 
-  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:nil messenger:nil];
+  SwiftCameraPlugin *camera = [[SwiftCameraPlugin alloc] initWithRegistry:OCMProtocolMock(@protocol(FlutterTextureRegistry)) messenger:OCMProtocolMock(@protocol(FlutterBinaryMessenger))];
+
   XCTestExpectation *expectation =
       [[XCTestExpectation alloc] initWithDescription:@"Result finished"];
 
