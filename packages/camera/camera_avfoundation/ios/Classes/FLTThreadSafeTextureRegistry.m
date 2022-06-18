@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import "FLTThreadSafeTextureRegistry.h"
-#import "QueueUtils.h"
+#import "camera_avfoundation-Swift.h"
 
 @interface FLTThreadSafeTextureRegistry ()
 @property(nonatomic, strong) NSObject<FlutterTextureRegistry> *registry;
@@ -21,21 +21,21 @@
 
 - (void)registerTexture:(NSObject<FlutterTexture> *)texture
              completion:(void (^)(int64_t))completion {
-  FLTEnsureToRunOnMainQueue(^{
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     completion([self.registry registerTexture:texture]);
-  });
+  }];
 }
 
 - (void)textureFrameAvailable:(int64_t)textureId {
-  FLTEnsureToRunOnMainQueue(^{
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     [self.registry textureFrameAvailable:textureId];
-  });
+  }];
 }
 
 - (void)unregisterTexture:(int64_t)textureId {
-  FLTEnsureToRunOnMainQueue(^{
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     [self.registry unregisterTexture:textureId];
-  });
+  }];
 }
 
 @end

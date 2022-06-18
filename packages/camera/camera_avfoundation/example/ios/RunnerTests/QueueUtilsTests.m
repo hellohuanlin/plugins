@@ -14,11 +14,12 @@
 - (void)testShouldStayOnMainQueueIfCalledFromMainQueue {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Block must be run on the main queue."];
-  FLTEnsureToRunOnMainQueue(^{
+
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     if (NSThread.isMainThread) {
       [expectation fulfill];
     }
-  });
+  }];
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -26,11 +27,11 @@
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Block must be run on the main queue."];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    FLTEnsureToRunOnMainQueue(^{
+    [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
       if (NSThread.isMainThread) {
         [expectation fulfill];
       }
-    });
+    }];
   });
   [self waitForExpectationsWithTimeout:1 handler:nil];
 }

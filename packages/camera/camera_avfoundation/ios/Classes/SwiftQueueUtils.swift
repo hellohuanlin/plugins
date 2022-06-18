@@ -24,4 +24,12 @@ import Foundation
     queue.setSpecific(key: specificKey, value: specific)
   }
 
+  @objc public static func ensureToRunOnMainQueue(block: @escaping () -> Void) {
+    if Thread.isMainThread {
+      block()
+    } else {
+      DispatchQueue.main.async(execute: block)
+    }
+  }
+
 }

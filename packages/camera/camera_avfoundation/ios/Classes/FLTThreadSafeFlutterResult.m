@@ -4,7 +4,7 @@
 
 #import "FLTThreadSafeFlutterResult.h"
 #import <Foundation/Foundation.h>
-#import "QueueUtils.h"
+#import "camera_avfoundation-Swift.h"
 
 @implementation FLTThreadSafeFlutterResult {
 }
@@ -51,9 +51,9 @@
  * Sends result to flutterResult on the main thread.
  */
 - (void)send:(id _Nullable)result {
-  FLTEnsureToRunOnMainQueue(^{
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     self.flutterResult(result);
-  });
+  }];
 }
 
 @end

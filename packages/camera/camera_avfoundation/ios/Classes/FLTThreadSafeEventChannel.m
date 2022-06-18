@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import "FLTThreadSafeEventChannel.h"
-#import "QueueUtils.h"
+#import "camera_avfoundation-Swift.h"
 
 @interface FLTThreadSafeEventChannel ()
 @property(nonatomic, strong) FlutterEventChannel *channel;
@@ -21,10 +21,10 @@
 
 - (void)setStreamHandler:(NSObject<FlutterStreamHandler> *)handler
               completion:(void (^)(void))completion {
-  FLTEnsureToRunOnMainQueue(^{
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     [self.channel setStreamHandler:handler];
     completion();
-  });
+  }];
 }
 
 @end

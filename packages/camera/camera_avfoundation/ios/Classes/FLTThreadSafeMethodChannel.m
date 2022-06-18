@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import "FLTThreadSafeMethodChannel.h"
-#import "QueueUtils.h"
+#import "camera_avfoundation-Swift.h"
 
 @interface FLTThreadSafeMethodChannel ()
 @property(nonatomic, strong) FlutterMethodChannel *channel;
@@ -20,9 +20,9 @@
 }
 
 - (void)invokeMethod:(NSString *)method arguments:(id)arguments {
-  FLTEnsureToRunOnMainQueue(^{
+  [SwiftQueueUtils ensureToRunOnMainQueueWithBlock:^{
     [self.channel invokeMethod:method arguments:arguments];
-  });
+  }];
 }
 
 @end
