@@ -19,7 +19,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
-  private let textureRegistry: FLTThreadSafeTextureRegistry
+  private let textureRegistry: ThreadSafeTextureRegistry
   private let messenger: FlutterBinaryMessenger
 
   private let captureSessionQueue: DispatchQueue
@@ -34,7 +34,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     registry: FlutterTextureRegistry,
     messenger: FlutterBinaryMessenger)
   {
-    self.textureRegistry = FLTThreadSafeTextureRegistry(textureRegistry: registry)
+    self.textureRegistry = ThreadSafeTextureRegistry(registry: registry)
     self.messenger = messenger
     captureSessionQueue = DispatchQueue(label: "io.flutter.camera.captureSessionQueue")
 

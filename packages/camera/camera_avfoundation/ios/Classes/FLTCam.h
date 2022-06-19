@@ -10,7 +10,6 @@
 #import "FLTThreadSafeEventChannel.h"
 #import "FLTThreadSafeFlutterResult.h"
 #import "FLTThreadSafeMethodChannel.h"
-#import "FLTThreadSafeTextureRegistry.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
