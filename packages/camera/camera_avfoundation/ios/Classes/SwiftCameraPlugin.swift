@@ -24,7 +24,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   private let captureSessionQueue: DispatchQueue
 
-  private let deviceEventMethodChannel: FLTThreadSafeMethodChannel
+  private let deviceEventMethodChannel: ThreadSafeMethodChannel
 
   @objc
   public var camera: FLTCam? = nil
@@ -43,7 +43,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
     let methodChannel = FlutterMethodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
 
-    deviceEventMethodChannel = FLTThreadSafeMethodChannel(methodChannel: methodChannel)
+    deviceEventMethodChannel = ThreadSafeMethodChannel(channel: methodChannel)
 
     super.init()
 
@@ -82,13 +82,13 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     captureSessionQueue.async {
-      let result = FLTThreadSafeFlutterResult(result: result)
+      let result = ThreadSafeFlutterResult(result: result)
       self.handleAsync(call, result: result)
     }
   }
 
   @objc
-  public func handleAsync(_ call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
+  public func handleAsync(_ call: FlutterMethodCall, result: ThreadSafeFlutterResult) {
 
     switch call.method {
     case "availableCameras":
@@ -146,7 +146,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         }
 
         let methodChannel = FlutterMethodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
-        let threadSafeMethodChannel = FLTThreadSafeMethodChannel(methodChannel: methodChannel)
+        let threadSafeMethodChannel = ThreadSafeMethodChannel(channel: methodChannel)
 
         camera.methodChannel = threadSafeMethodChannel
         threadSafeMethodChannel.invokeMethod("initialized", arguments: [
@@ -237,7 +237,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   }
 
 
-  private func handleCreateCall(_ call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
+  private func handleCreateCall(_ call: FlutterMethodCall, result: ThreadSafeFlutterResult) {
 
     guard let argMap = call.arguments as? [String:Any] else { return }
 
@@ -264,7 +264,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   }
 
-  private func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: FLTThreadSafeFlutterResult) {
+  private func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: ThreadSafeFlutterResult) {
     guard let argMap = call.arguments as? [String:Any] else { return }
 
     let enableAudio = (argMap["enableAudio"] as? NSNumber)?.boolValue ?? false

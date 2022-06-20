@@ -227,7 +227,7 @@ NSString *const errorMethod = @"error";
   }
 }
 
-- (void)captureToFile:(FLTThreadSafeFlutterResult *)result API_AVAILABLE(ios(10)) {
+- (void)captureToFile:(ThreadSafeFlutterResult *)result API_AVAILABLE(ios(10)) {
   AVCapturePhotoSettings *settings = [AVCapturePhotoSettings photoSettings];
   if (_resolutionPreset == FLTResolutionPresetMax) {
     [settings setHighResolutionPhotoEnabled:YES];
@@ -615,7 +615,7 @@ NSString *const errorMethod = @"error";
   return pixelBuffer;
 }
 
-- (void)startVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)startVideoRecordingWithResult:(ThreadSafeFlutterResult *)result {
   if (!_isRecording) {
     NSError *error;
     _videoRecordingPath = [self getTemporaryFilePathWithExtension:@"mp4"
@@ -642,7 +642,7 @@ NSString *const errorMethod = @"error";
   }
 }
 
-- (void)stopVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)stopVideoRecordingWithResult:(ThreadSafeFlutterResult *)result {
   if (_isRecording) {
     _isRecording = NO;
 
@@ -668,19 +668,19 @@ NSString *const errorMethod = @"error";
   }
 }
 
-- (void)pauseVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)pauseVideoRecordingWithResult:(ThreadSafeFlutterResult *)result {
   _isRecordingPaused = YES;
   _videoIsDisconnected = YES;
   _audioIsDisconnected = YES;
   [result sendSuccess];
 }
 
-- (void)resumeVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)resumeVideoRecordingWithResult:(ThreadSafeFlutterResult *)result {
   _isRecordingPaused = NO;
   [result sendSuccess];
 }
 
-- (void)lockCaptureOrientationWithResult:(FLTThreadSafeFlutterResult *)result
+- (void)lockCaptureOrientationWithResult:(ThreadSafeFlutterResult *)result
                              orientation:(NSString *)orientationStr {
   UIDeviceOrientation orientation;
   @try {
@@ -698,13 +698,13 @@ NSString *const errorMethod = @"error";
   [result sendSuccess];
 }
 
-- (void)unlockCaptureOrientationWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)unlockCaptureOrientationWithResult:(ThreadSafeFlutterResult *)result {
   _lockedCaptureOrientation = UIDeviceOrientationUnknown;
   [self updateOrientation];
   [result sendSuccess];
 }
 
-- (void)setFlashModeWithResult:(FLTThreadSafeFlutterResult *)result mode:(NSString *)modeStr {
+- (void)setFlashModeWithResult:(ThreadSafeFlutterResult *)result mode:(NSString *)modeStr {
   FLTFlashMode mode;
   @try {
     mode = FLTGetFLTFlashModeForString(modeStr);
@@ -755,7 +755,7 @@ NSString *const errorMethod = @"error";
   [result sendSuccess];
 }
 
-- (void)setExposureModeWithResult:(FLTThreadSafeFlutterResult *)result mode:(NSString *)modeStr {
+- (void)setExposureModeWithResult:(ThreadSafeFlutterResult *)result mode:(NSString *)modeStr {
   FLTExposureMode mode;
   @try {
     mode = FLTGetFLTExposureModeForString(modeStr);
@@ -785,7 +785,7 @@ NSString *const errorMethod = @"error";
   [_captureDevice unlockForConfiguration];
 }
 
-- (void)setFocusModeWithResult:(FLTThreadSafeFlutterResult *)result mode:(NSString *)modeStr {
+- (void)setFocusModeWithResult:(ThreadSafeFlutterResult *)result mode:(NSString *)modeStr {
   FLTFocusMode mode;
   @try {
     mode = FLTGetFLTFocusModeForString(modeStr);
@@ -821,12 +821,12 @@ NSString *const errorMethod = @"error";
   [captureDevice unlockForConfiguration];
 }
 
-- (void)pausePreviewWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)pausePreviewWithResult:(ThreadSafeFlutterResult *)result {
   _isPreviewPaused = true;
   [result sendSuccess];
 }
 
-- (void)resumePreviewWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)resumePreviewWithResult:(ThreadSafeFlutterResult *)result {
   _isPreviewPaused = false;
   [result sendSuccess];
 }
@@ -856,7 +856,7 @@ NSString *const errorMethod = @"error";
   return CGPointMake(x, y);
 }
 
-- (void)setExposurePointWithResult:(FLTThreadSafeFlutterResult *)result x:(double)x y:(double)y {
+- (void)setExposurePointWithResult:(ThreadSafeFlutterResult *)result x:(double)x y:(double)y {
   if (!_captureDevice.isExposurePointOfInterestSupported) {
     [result sendErrorWithCode:@"setExposurePointFailed"
                       message:@"Device does not have exposure point capabilities"
@@ -874,7 +874,7 @@ NSString *const errorMethod = @"error";
   [result sendSuccess];
 }
 
-- (void)setFocusPointWithResult:(FLTThreadSafeFlutterResult *)result x:(double)x y:(double)y {
+- (void)setFocusPointWithResult:(ThreadSafeFlutterResult *)result x:(double)x y:(double)y {
   if (!_captureDevice.isFocusPointOfInterestSupported) {
     [result sendErrorWithCode:@"setFocusPointFailed"
                       message:@"Device does not have focus point capabilities"
@@ -893,7 +893,7 @@ NSString *const errorMethod = @"error";
   [result sendSuccess];
 }
 
-- (void)setExposureOffsetWithResult:(FLTThreadSafeFlutterResult *)result offset:(double)offset {
+- (void)setExposureOffsetWithResult:(ThreadSafeFlutterResult *)result offset:(double)offset {
   [_captureDevice lockForConfiguration:nil];
   [_captureDevice setExposureTargetBias:offset completionHandler:nil];
   [_captureDevice unlockForConfiguration];
@@ -912,8 +912,8 @@ NSString *const errorMethod = @"error";
     FlutterEventChannel *eventChannel =
         [FlutterEventChannel eventChannelWithName:@"plugins.flutter.io/camera/imageStream"
                                   binaryMessenger:messenger];
-    FLTThreadSafeEventChannel *threadSafeEventChannel =
-        [[FLTThreadSafeEventChannel alloc] initWithEventChannel:eventChannel];
+    ThreadSafeEventChannel *threadSafeEventChannel =
+        [[ThreadSafeEventChannel alloc] initWithChannel:eventChannel];
 
     _imageStreamHandler = imageStreamHandler;
     [threadSafeEventChannel setStreamHandler:_imageStreamHandler
@@ -942,18 +942,18 @@ NSString *const errorMethod = @"error";
   self.streamingPendingFramesCount--;
 }
 
-- (void)getMaxZoomLevelWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)getMaxZoomLevelWithResult:(ThreadSafeFlutterResult *)result {
   CGFloat maxZoomFactor = [self getMaxAvailableZoomFactor];
 
   [result sendSuccessWithData:[NSNumber numberWithFloat:maxZoomFactor]];
 }
 
-- (void)getMinZoomLevelWithResult:(FLTThreadSafeFlutterResult *)result {
+- (void)getMinZoomLevelWithResult:(ThreadSafeFlutterResult *)result {
   CGFloat minZoomFactor = [self getMinAvailableZoomFactor];
   [result sendSuccessWithData:[NSNumber numberWithFloat:minZoomFactor]];
 }
 
-- (void)setZoomLevel:(CGFloat)zoom Result:(FLTThreadSafeFlutterResult *)result {
+- (void)setZoomLevel:(CGFloat)zoom Result:(ThreadSafeFlutterResult *)result {
   CGFloat maxAvailableZoomFactor = [self getMaxAvailableZoomFactor];
   CGFloat minAvailableZoomFactor = [self getMinAvailableZoomFactor];
 

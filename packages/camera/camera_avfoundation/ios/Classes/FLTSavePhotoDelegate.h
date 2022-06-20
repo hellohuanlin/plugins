@@ -5,8 +5,6 @@
 @import AVFoundation;
 @import Foundation;
 
-#import "FLTThreadSafeFlutterResult.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// The completion handler block for save photo operations.

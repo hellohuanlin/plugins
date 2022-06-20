@@ -7,9 +7,9 @@
 @import Flutter;
 
 #import "CameraProperties.h"
-#import "FLTThreadSafeEventChannel.h"
-#import "FLTThreadSafeFlutterResult.h"
-#import "FLTThreadSafeMethodChannel.h"
+
+@class ThreadSafeMethodChannel;
+@class ThreadSafeFlutterResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) CGSize previewSize;
 @property(assign, nonatomic) BOOL isPreviewPaused;
 @property(nonatomic, copy) void (^onFrameAvailable)(void);
-@property(nonatomic) FLTThreadSafeMethodChannel *methodChannel;
+@property(nonatomic) ThreadSafeMethodChannel *methodChannel;
 @property(assign, nonatomic) FLTResolutionPreset resolutionPreset;
 @property(assign, nonatomic) FLTExposureMode exposureMode;
 @property(assign, nonatomic) FLTFocusMode focusMode;
@@ -46,18 +46,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 - (void)stop;
 - (void)setDeviceOrientation:(UIDeviceOrientation)orientation;
-- (void)captureToFile:(FLTThreadSafeFlutterResult *)result API_AVAILABLE(ios(10));
+- (void)captureToFile:(ThreadSafeFlutterResult *)result API_AVAILABLE(ios(10));
 - (void)close;
-- (void)startVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)stopVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)pauseVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)resumeVideoRecordingWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)lockCaptureOrientationWithResult:(FLTThreadSafeFlutterResult *)result
+- (void)startVideoRecordingWithResult:(ThreadSafeFlutterResult *)result;
+- (void)stopVideoRecordingWithResult:(ThreadSafeFlutterResult *)result;
+- (void)pauseVideoRecordingWithResult:(ThreadSafeFlutterResult *)result;
+- (void)resumeVideoRecordingWithResult:(ThreadSafeFlutterResult *)result;
+- (void)lockCaptureOrientationWithResult:(ThreadSafeFlutterResult *)result
                              orientation:(NSString *)orientationStr;
-- (void)unlockCaptureOrientationWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)setFlashModeWithResult:(FLTThreadSafeFlutterResult *)result mode:(NSString *)modeStr;
-- (void)setExposureModeWithResult:(FLTThreadSafeFlutterResult *)result mode:(NSString *)modeStr;
-- (void)setFocusModeWithResult:(FLTThreadSafeFlutterResult *)result mode:(NSString *)modeStr;
+- (void)unlockCaptureOrientationWithResult:(ThreadSafeFlutterResult *)result;
+- (void)setFlashModeWithResult:(ThreadSafeFlutterResult *)result mode:(NSString *)modeStr;
+- (void)setExposureModeWithResult:(ThreadSafeFlutterResult *)result mode:(NSString *)modeStr;
+- (void)setFocusModeWithResult:(ThreadSafeFlutterResult *)result mode:(NSString *)modeStr;
 - (void)applyFocusMode;
 
 /**
@@ -83,16 +83,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @param captureDevice The AVCaptureDevice to which the @focusMode will be applied.
  */
 - (void)applyFocusMode:(FLTFocusMode)focusMode onDevice:(AVCaptureDevice *)captureDevice;
-- (void)pausePreviewWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)resumePreviewWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)setExposurePointWithResult:(FLTThreadSafeFlutterResult *)result x:(double)x y:(double)y;
-- (void)setFocusPointWithResult:(FLTThreadSafeFlutterResult *)result x:(double)x y:(double)y;
-- (void)setExposureOffsetWithResult:(FLTThreadSafeFlutterResult *)result offset:(double)offset;
+- (void)pausePreviewWithResult:(ThreadSafeFlutterResult *)result;
+- (void)resumePreviewWithResult:(ThreadSafeFlutterResult *)result;
+- (void)setExposurePointWithResult:(ThreadSafeFlutterResult *)result x:(double)x y:(double)y;
+- (void)setFocusPointWithResult:(ThreadSafeFlutterResult *)result x:(double)x y:(double)y;
+- (void)setExposureOffsetWithResult:(ThreadSafeFlutterResult *)result offset:(double)offset;
 - (void)startImageStreamWithMessenger:(NSObject<FlutterBinaryMessenger> *)messenger;
 - (void)stopImageStream;
-- (void)getMaxZoomLevelWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)getMinZoomLevelWithResult:(FLTThreadSafeFlutterResult *)result;
-- (void)setZoomLevel:(CGFloat)zoom Result:(FLTThreadSafeFlutterResult *)result;
+- (void)getMaxZoomLevelWithResult:(ThreadSafeFlutterResult *)result;
+- (void)getMinZoomLevelWithResult:(ThreadSafeFlutterResult *)result;
+- (void)setZoomLevel:(CGFloat)zoom Result:(ThreadSafeFlutterResult *)result;
 - (void)setUpCaptureSessionForAudio;
 
 @end
