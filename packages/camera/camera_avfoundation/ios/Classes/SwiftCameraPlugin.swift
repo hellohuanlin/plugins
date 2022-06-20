@@ -240,14 +240,14 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
     guard let argMap = call.arguments as? [String:Any] else { return }
 
-    FLTRequestCameraPermissionWithCompletionHandler { error in
+    CameraPermissionUtils.requestCameraPermissionWithPermissionService { error in
       if let error = error {
         result.send(error)
       } else {
         let audioEnabled = (argMap["enableAudio"] as? NSNumber)?.boolValue ?? false
         if audioEnabled {
 
-          FLTRequestAudioPermissionWithCompletionHandler { error in
+          CameraPermissionUtils.requestCameraPermissionWithPermissionService { error in
             if let error = error {
               result.send(error)
             } else {

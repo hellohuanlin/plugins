@@ -8,7 +8,28 @@
 
 import Foundation
 import Flutter
-import camera_avfoundation
+@testable import camera_avfoundation
+import XCTest
+
+final class MockPermissionService: PermissionService {
+  static var authorizationStatusForMediaTypeStub: ((AVMediaType) -> AVAuthorizationStatus)? = nil
+
+  static var requestAccessForMediaTypeStub: ((AVMediaType, (Bool) -> Void) -> Void)? = nil
+
+  static func authorizationStatus(for mediaType: AVMediaType) -> AVAuthorizationStatus {
+    guard let stub = authorizationStatusForMediaTypeStub else {
+      XCTFail("authorizationStatus must be stubbed before called.")
+      return .notDetermined
+    }
+    return stub(mediaType)
+  }
+
+  static func requestAccess(for mediaType: AVMediaType, completionHandler handler: @escaping (Bool) -> Void) {
+    requestAccessForMediaTypeStub?(mediaType, handler)
+  }
+
+
+}
 
 public final class MockThreadSafeFlutterResult: NSObject, ThreadSafeFlutterResultProtocol {
 
