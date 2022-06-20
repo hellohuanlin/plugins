@@ -8,11 +8,18 @@
 import Foundation
 import Flutter
 
+@objc
+public protocol MethodChannel {
+  func invokeMethod(_ method: String, arguments: Any?)
+}
+
+extension FlutterMethodChannel: MethodChannel {}
+
 public final class ThreadSafeMethodChannel: NSObject {
-  private let channel: FlutterMethodChannel
+  private let channel: MethodChannel
 
   @objc
-  public init(channel: FlutterMethodChannel) {
+  public init(channel: MethodChannel) {
     self.channel = channel
   }
 

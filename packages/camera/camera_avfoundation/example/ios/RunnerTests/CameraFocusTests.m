@@ -113,7 +113,7 @@
   [_camera setValue:_mockDevice forKey:@"captureDevice"];
 
   // Run test
-  [_camera setFocusPointWithResult:[[FLTThreadSafeFlutterResult alloc]
+  [_camera setFocusPointWithResult:[[ThreadSafeFlutterResult alloc]
                                        initWithResult:^(id _Nullable result){
                                        }]
                                  x:1

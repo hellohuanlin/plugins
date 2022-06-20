@@ -6,7 +6,7 @@
 @import XCTest;
 @import AVFoundation;
 #import <OCMock/OCMock.h>
-#import "MockFLTThreadSafeFlutterResult.h"
+#import "RunnerTests-Swift.h"
 
 @interface AvailableCamerasTest : XCTestCase
 @end
@@ -58,8 +58,12 @@
   }
   OCMStub([discoverySessionMock devices]).andReturn([NSArray arrayWithArray:cameras]);
 
-  MockFLTThreadSafeFlutterResult *resultObject =
-      [[MockFLTThreadSafeFlutterResult alloc] initWithExpectation:expectation];
+  __block NSDictionary *dictionaryResult;
+  MockThreadSafeFlutterResult *resultObject = [[MockThreadSafeFlutterResult alloc] init];
+  resultObject.sendSuccessWithDataStub = ^(id data) {
+    dictionaryResult = data;
+    [expectation fulfill];
+  };
 
   // Set up method call
   FlutterMethodCall *call = [FlutterMethodCall methodCallWithMethodName:@"availableCameras"
@@ -68,7 +72,6 @@
   [camera handleAsync:call result:resultObject];
 
   // Verify the result
-  NSDictionary *dictionaryResult = (NSDictionary *)resultObject.receivedResult;
   if (@available(iOS 13.0, *)) {
     XCTAssertTrue([dictionaryResult count] == 4);
   } else {
@@ -108,8 +111,12 @@
   [cameras addObjectsFromArray:@[ wideAngleCamera, frontFacingCamera ]];
   OCMStub([discoverySessionMock devices]).andReturn([NSArray arrayWithArray:cameras]);
 
-  MockFLTThreadSafeFlutterResult *resultObject =
-      [[MockFLTThreadSafeFlutterResult alloc] initWithExpectation:expectation];
+  __block NSDictionary *dictionaryResult;
+  MockThreadSafeFlutterResult *resultObject = [[MockThreadSafeFlutterResult alloc] init];
+  resultObject.sendSuccessWithDataStub = ^(id data) {
+    dictionaryResult = data;
+    [expectation fulfill];
+  };
 
   // Set up method call
   FlutterMethodCall *call = [FlutterMethodCall methodCallWithMethodName:@"availableCameras"
@@ -118,7 +125,6 @@
   [camera handleAsync:call result:resultObject];
 
   // Verify the result
-  NSDictionary *dictionaryResult = (NSDictionary *)resultObject.receivedResult;
   XCTAssertTrue([dictionaryResult count] == 2);
 }
 

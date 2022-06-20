@@ -12,31 +12,6 @@ import XCTest
 
 final class ThreadSafeTextureRegistryTests: XCTestCase {
 
-  private class MockTexture: NSObject, FlutterTexture {
-    var copyPixelBufferStub: (() -> Unmanaged<CVPixelBuffer>?)? = nil
-
-    func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
-      return copyPixelBufferStub?() ?? nil
-    }
-  }
-
-  private class MockTextureRegistry: NSObject, FlutterTextureRegistry {
-
-    var registerStub: ((FlutterTexture) -> Int64)? = nil
-    var unregisterTextureStub: ((Int64) -> Void)? = nil
-    var textureFrameAvailableStub: ((Int64) -> Void)? = nil
-
-    func register(_ texture: FlutterTexture) -> Int64 {
-      return registerStub?(texture) ?? 0
-    }
-    func unregisterTexture(_ textureId: Int64) {
-      unregisterTextureStub?(textureId)
-    }
-    func textureFrameAvailable(_ textureId: Int64) {
-      textureFrameAvailableStub?(textureId)
-    }
-  }
-
 
   func testShouldStayOnMainThreadIfCalledFromMainThread() {
 

@@ -8,7 +8,19 @@
 import Foundation
 import Flutter
 
-public final class ThreadSafeFlutterResult: NSObject {
+@objc
+public protocol ThreadSafeFlutterResultProtocol {
+  func sendSuccess()
+  func sendSuccess(withData data: Any)
+  func sendError(_ error: NSError)
+  func sendError(code: String, message: String?, details: Any?)
+  func sendNotImplemented()
+  func sendFlutterError(_ flutterError: FlutterError)
+  func send(_ result: Any?);
+}
+
+
+public final class ThreadSafeFlutterResult: NSObject, ThreadSafeFlutterResultProtocol {
   private let result: FlutterResult
 
   @objc

@@ -88,7 +88,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   }
 
   @objc
-  public func handleAsync(_ call: FlutterMethodCall, result: ThreadSafeFlutterResult) {
+  public func handleAsync(_ call: FlutterMethodCall, result: ThreadSafeFlutterResultProtocol) {
 
     switch call.method {
     case "availableCameras":
@@ -172,32 +172,32 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         camera?.setUpCaptureSessionForAudio()
         result.sendSuccess()
       case "startVideoRecording":
-        camera?.startVideoRecording(with: result)
+        camera?.startVideoRecording(withResult: result)
       case "stopVideoRecording":
-        camera?.stopVideoRecording(with: result)
+        camera?.stopVideoRecording(withResult: result)
       case "pauseVideoRecording":
-        camera?.pauseVideoRecording(with: result)
+        camera?.pauseVideoRecording(withResult: result)
       case "resumeVideoRecording":
-        camera?.resumeVideoRecording(with: result)
+        camera?.resumeVideoRecording(withResult: result)
       case "getMaxZoomLevel":
-        camera?.getMaxZoomLevel(with: result)
+        camera?.getMaxZoomLevel(withResult: result)
       case "getMinZoomLevel":
-        camera?.getMinZoomLevel(with: result)
+        camera?.getMinZoomLevel(withResult: result)
       case "setZoomLevel":
         guard let zoom = (argsMap?["zoom"] as? NSNumber)?.floatValue else { return }
         camera?.setZoomLevel(CGFloat(zoom), result: result)
       case "setFlashMode":
         guard let mode = argsMap?["mode"] as? String else { return }
-        camera?.setFlashModeWith(result, mode: mode)
+        camera?.setFlashModeWithResult(result, mode: mode)
       case "setExposureMode":
         guard let mode = argsMap?["mode"] as? String else { return }
-        camera?.setExposureModeWith(result, mode: mode)
+        camera?.setExposureModeWithResult(result, mode: mode)
       case "setExposurePoint":
         let reset = (argsMap?["reset"] as? NSNumber)?.boolValue ?? false
         let x = reset ? 0.5 : (argsMap?["x"] as? NSNumber)?.doubleValue ?? 0
         let y = reset ? 0.5 : (argsMap?["y"] as? NSNumber)?.doubleValue ?? 0
 
-        camera?.setExposurePointWith(result, x: x, y: y)
+        camera?.setExposurePointWithResult(result, x: x, y: y)
 
       case "getMinExposureOffset":
         guard let camera = camera else { return }
@@ -210,26 +210,25 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
       case "getExposureOffsetStepSize":
         result.sendSuccess(withData: NSNumber(floatLiteral: 0))
       case "setExposureOffset":
-        camera?.setExposureOffsetWith(result, offset: (argsMap?["offset"] as? NSNumber)?.doubleValue ?? 0)
+        camera?.setExposureOffsetWithResult(result, offset: (argsMap?["offset"] as? NSNumber)?.doubleValue ?? 0)
       case "lockCaptureOrientation":
         guard let orientation = argsMap?["orientation"] as? String else { return }
-        camera?.lockCaptureOrientation(with: result, orientation: orientation)
+        camera?.lockCaptureOrientation(withResult: result, orientation: orientation)
       case "unlockCaptureOrientation":
-        camera?.unlockCaptureOrientation(with: result)
+        camera?.unlockCaptureOrientation(withResult: result)
       case "setFocusMode":
         guard let mode = argsMap?["mode"] as? String else { return }
-
-        camera?.setFocusModeWith(result, mode: mode)
+        camera?.setFocusModeWithResult(result, mode: mode)
       case "setFocusPoint":
         let reset = (argsMap?["reset"] as? NSNumber)?.boolValue ?? false
         let x = reset ? 0.5 : (argsMap?["x"] as? NSNumber)?.doubleValue ?? 0
         let y = reset ? 0.5 : (argsMap?["y"] as? NSNumber)?.doubleValue ?? 0
 
-        camera?.setFocusPointWith(result, x: x, y: y)
+        camera?.setFocusPointWithResult(result, x: x, y: y)
       case "pausePreview":
-        camera?.pausePreview(with: result)
+        camera?.pausePreview(withResult: result)
       case "resumePreview":
-        camera?.resumePreview(with: result)
+        camera?.resumePreview(withResult: result)
       case _:
         result.sendNotImplemented()
       }
@@ -237,7 +236,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   }
 
 
-  private func handleCreateCall(_ call: FlutterMethodCall, result: ThreadSafeFlutterResult) {
+  private func handleCreateCall(_ call: FlutterMethodCall, result: ThreadSafeFlutterResultProtocol) {
 
     guard let argMap = call.arguments as? [String:Any] else { return }
 
@@ -264,7 +263,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   }
 
-  private func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: ThreadSafeFlutterResult) {
+  private func createCameraOnSessionQueue(createMethodCall call: FlutterMethodCall, result: ThreadSafeFlutterResultProtocol) {
     guard let argMap = call.arguments as? [String:Any] else { return }
 
     let enableAudio = (argMap["enableAudio"] as? NSNumber)?.boolValue ?? false

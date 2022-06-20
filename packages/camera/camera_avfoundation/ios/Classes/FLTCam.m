@@ -821,12 +821,12 @@ NSString *const errorMethod = @"error";
   [captureDevice unlockForConfiguration];
 }
 
-- (void)pausePreviewWithResult:(ThreadSafeFlutterResult *)result {
+- (void)pausePreviewWithResult:(id<ThreadSafeFlutterResultProtocol>)result {
   _isPreviewPaused = true;
   [result sendSuccess];
 }
 
-- (void)resumePreviewWithResult:(ThreadSafeFlutterResult *)result {
+- (void)resumePreviewWithResult:(id<ThreadSafeFlutterResultProtocol>)result {
   _isPreviewPaused = false;
   [result sendSuccess];
 }

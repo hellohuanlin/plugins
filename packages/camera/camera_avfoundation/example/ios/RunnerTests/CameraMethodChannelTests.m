@@ -7,7 +7,6 @@
 @import AVFoundation;
 @import Flutter;
 #import <OCMock/OCMock.h>
-#import "MockFLTThreadSafeFlutterResult.h"
 @interface CameraMethodChannelTests : XCTestCase
 @end
 

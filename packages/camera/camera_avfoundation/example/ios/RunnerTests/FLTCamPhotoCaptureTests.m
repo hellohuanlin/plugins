@@ -29,7 +29,7 @@
   OCMStub([mockSettings photoSettings]).andReturn(settings);
 
   NSError *error = [NSError errorWithDomain:@"test" code:0 userInfo:nil];
-  id mockResult = OCMClassMock([FLTThreadSafeFlutterResult class]);
+  id mockResult = OCMClassMock([ThreadSafeFlutterResult class]);
   OCMStub([mockResult sendError:error]).andDo(^(NSInvocation *invocation) {
     [errorExpectation fulfill];
   });
@@ -70,7 +70,7 @@
   OCMStub([mockSettings photoSettings]).andReturn(settings);
 
   NSString *filePath = @"test";
-  id mockResult = OCMClassMock([FLTThreadSafeFlutterResult class]);
+  id mockResult = OCMClassMock([ThreadSafeFlutterResult class]);
   OCMStub([mockResult sendSuccessWithData:filePath]).andDo(^(NSInvocation *invocation) {
     [pathExpectation fulfill];
   });
