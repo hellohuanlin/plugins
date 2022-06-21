@@ -10,6 +10,14 @@ import AVFoundation
 
 public typealias SavePhotoDelegateCompletionHandler = (String?, Error?) -> Void
 
+@objc
+public protocol DataWritable {
+  @objc(writeToURL:options:error:)
+  func write(to url: URL, options writeOptionsMask: NSData.WritingOptions) throws
+}
+
+extension NSData: DataWritable {}
+
 public class SavePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
   enum SavePhotoError: Error {
@@ -33,7 +41,7 @@ public class SavePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
   private func handlePhotoCaptureResultWithError(
     _ error: Error?,
-    photoDataProvider: @escaping () -> Data?)
+    photoDataProvider: @escaping () -> DataWritable?)
   {
     if let error = error {
       completionHandler(nil, error)
@@ -60,10 +68,24 @@ public class SavePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     error: Error?)
   {
     handlePhotoCaptureResultWithError(error) {
-      return photo.fileDataRepresentation()
+      return photo.fileDataRepresentation() as? NSData
     }
   }
 
 }
 
+#if DEBUG
+extension SavePhotoDelegate {
+  func test_handlePhotoCaptureResultWithError(
+    _ error: Error?,
+    photoDataProvider: @escaping () -> DataWritable?)
+  {
+    handlePhotoCaptureResultWithError(error, photoDataProvider: photoDataProvider)
+  }
 
+  @objc
+  public var test_completionHandler: SavePhotoDelegateCompletionHandler {
+    return completionHandler
+  }
+}
+#endif

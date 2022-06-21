@@ -37,11 +37,11 @@
   id mockOutput = OCMClassMock([AVCapturePhotoOutput class]);
   OCMStub([mockOutput capturePhotoWithSettings:OCMOCK_ANY delegate:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
-        FLTSavePhotoDelegate *delegate = cam.inProgressSavePhotoDelegates[@(settings.uniqueID)];
+        SavePhotoDelegate *delegate = cam.inProgressSavePhotoDelegates[@(settings.uniqueID)];
         // Completion runs on IO queue.
         dispatch_queue_t ioQueue = dispatch_queue_create("io_queue", NULL);
         dispatch_async(ioQueue, ^{
-          delegate.completionHandler(nil, error);
+          delegate.test_completionHandler(nil, error);
         });
       });
   cam.capturePhotoOutput = mockOutput;
@@ -78,11 +78,11 @@
   id mockOutput = OCMClassMock([AVCapturePhotoOutput class]);
   OCMStub([mockOutput capturePhotoWithSettings:OCMOCK_ANY delegate:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
-        FLTSavePhotoDelegate *delegate = cam.inProgressSavePhotoDelegates[@(settings.uniqueID)];
+        SavePhotoDelegate *delegate = cam.inProgressSavePhotoDelegates[@(settings.uniqueID)];
         // Completion runs on IO queue.
         dispatch_queue_t ioQueue = dispatch_queue_create("io_queue", NULL);
         dispatch_async(ioQueue, ^{
-          delegate.completionHandler(filePath, nil);
+          delegate.test_completionHandler(filePath, nil);
         });
       });
   cam.capturePhotoOutput = mockOutput;
