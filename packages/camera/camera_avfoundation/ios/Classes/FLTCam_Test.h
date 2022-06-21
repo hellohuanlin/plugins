@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 #import "FLTCam.h"
-#import "FLTSavePhotoDelegate.h"
+
+@class SavePhotoDelegate;
 
 @interface FLTImageStreamHandler : NSObject <FlutterStreamHandler>
 
@@ -36,7 +37,7 @@
 /// capture operations may overlap, so FLTCam has to keep track of multiple delegates in progress,
 /// instead of just a single delegate reference.
 @property(readonly, nonatomic)
-    NSMutableDictionary<NSNumber *, FLTSavePhotoDelegate *> *inProgressSavePhotoDelegates;
+    NSMutableDictionary<NSNumber *, SavePhotoDelegate *> *inProgressSavePhotoDelegates;
 
 /// Delegate callback when receiving a new video or audio sample.
 /// Exposed for unit tests.

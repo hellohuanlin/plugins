@@ -19,7 +19,7 @@
 
   NSError *captureError = [NSError errorWithDomain:@"test" code:0 userInfo:nil];
   dispatch_queue_t ioQueue = dispatch_queue_create("test", NULL);
-  FLTSavePhotoDelegate *delegate = [[FLTSavePhotoDelegate alloc]
+  SavePhotoDelegate *delegate = [[SavePhotoDelegate alloc]
            initWithPath:@"test"
                 ioQueue:ioQueue
       completionHandler:^(NSString *_Nullable path, NSError *_Nullable error) {

@@ -4,7 +4,6 @@
 
 #import "FLTCam.h"
 #import "FLTCam_Test.h"
-#import "FLTSavePhotoDelegate.h"
 #import "camera_avfoundation-Swift.h"
 
 @import CoreMotion;
@@ -247,7 +246,7 @@ NSString *const errorMethod = @"error";
     return;
   }
 
-  FLTSavePhotoDelegate *savePhotoDelegate = [[FLTSavePhotoDelegate alloc]
+  SavePhotoDelegate *savePhotoDelegate = [[SavePhotoDelegate alloc]
            initWithPath:path
                 ioQueue:self.photoIOQueue
       completionHandler:^(NSString *_Nullable path, NSError *_Nullable error) {
