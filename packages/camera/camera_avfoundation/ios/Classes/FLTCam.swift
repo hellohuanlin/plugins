@@ -267,7 +267,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     let fileName = prefix.appending(UUID().uuidString)
 
-    let file = (fileDir.appendingPathComponent(fileName) as NSString).appendingPathComponent(`extension`)
+    let file = (fileDir.appendingPathComponent(fileName) as NSString).appendingPathExtension(`extension`)!
 
     let fm = FileManager.default
     if !fm.fileExists(atPath: fileDir as String) {
