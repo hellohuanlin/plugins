@@ -6,6 +6,7 @@
 @import XCTest;
 @import AVFoundation;
 #import <OCMock/OCMock.h>
+#import "RunnerTests-Swift.h"
 
 @interface CameraFocusTests : XCTestCase
 @property(readonly, nonatomic) FLTCam *camera;
@@ -16,7 +17,7 @@
 @implementation CameraFocusTests
 
 - (void)setUp {
-  _camera = [[FLTCam alloc] init];
+  _camera = [FLTCam new];
   _mockDevice = OCMClassMock([AVCaptureDevice class]);
   _mockUIDevice = OCMPartialMock([UIDevice currentDevice]);
 }
@@ -36,7 +37,9 @@
   [[_mockDevice reject] setFocusMode:AVCaptureFocusModeAutoFocus];
 
   // Run test
-  [_camera applyFocusMode:FLTFocusModeAuto onDevice:_mockDevice];
+  NSError *error;
+  [_camera applyFocusMode:FLTFocusModeAuto on:_mockDevice error:&error];
+  XCTAssertNil(error);
 
   // Expect setFocusMode:AVCaptureFocusModeContinuousAutoFocus
   OCMVerify([_mockDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus]);
@@ -53,7 +56,9 @@
   [[_mockDevice reject] setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
 
   // Run test
-  [_camera applyFocusMode:FLTFocusModeAuto onDevice:_mockDevice];
+  NSError *error;
+  [_camera applyFocusMode:FLTFocusModeAuto on:_mockDevice error:&error];
+  XCTAssertNil(error);
 
   // Expect setFocusMode:AVCaptureFocusModeAutoFocus
   OCMVerify([_mockDevice setFocusMode:AVCaptureFocusModeAutoFocus]);
@@ -71,7 +76,10 @@
   [[_mockDevice reject] setFocusMode:AVCaptureFocusModeAutoFocus];
 
   // Run test
-  [_camera applyFocusMode:FLTFocusModeAuto onDevice:_mockDevice];
+  NSError *error;
+  [_camera applyFocusMode:FLTFocusModeAuto on:_mockDevice error:&error];
+
+  XCTAssertNil(error);
 }
 
 - (void)testLockedFocusWithModeSupported_ShouldSetModeAutoFocus {
@@ -84,7 +92,10 @@
   [[_mockDevice reject] setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
 
   // Run test
-  [_camera applyFocusMode:FLTFocusModeLocked onDevice:_mockDevice];
+  NSError *error;
+  [_camera applyFocusMode:FLTFocusModeLocked on:_mockDevice error:&error];
+
+  XCTAssertNil(error);
 
   // Expect setFocusMode:AVCaptureFocusModeAutoFocus
   OCMVerify([_mockDevice setFocusMode:AVCaptureFocusModeAutoFocus]);
@@ -101,7 +112,9 @@
   [[_mockDevice reject] setFocusMode:AVCaptureFocusModeAutoFocus];
 
   // Run test
-  [_camera applyFocusMode:FLTFocusModeLocked onDevice:_mockDevice];
+  NSError *error;
+  [_camera applyFocusMode:FLTFocusModeLocked on:_mockDevice error:&error];
+  XCTAssertNil(error);
 }
 
 - (void)testSetFocusPointWithResult_SetsFocusPointOfInterest {
@@ -113,11 +126,10 @@
   [_camera setValue:_mockDevice forKey:@"captureDevice"];
 
   // Run test
-  [_camera setFocusPointWithResult:[[ThreadSafeFlutterResult alloc]
-                                       initWithResult:^(id _Nullable result){
-                                       }]
-                                 x:1
-                                 y:1];
+  NSError *error;
+  MockThreadSafeFlutterResult *result = [[MockThreadSafeFlutterResult alloc] init];
+  [_camera setFocusPointWith:result x:1 y:1 error:&error];
+  XCTAssertNil(error);
 
   // Verify the focus point of interest has been set
   OCMVerify([_mockDevice setFocusPointOfInterest:CGPointMake(1, 1)]);

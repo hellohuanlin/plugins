@@ -10,6 +10,7 @@ import Foundation
 @testable import camera_avfoundation
 import AVFoundation
 import XCTest
+import Flutter
 
 final class CameraPermissionUtilsTests: XCTestCase {
 
