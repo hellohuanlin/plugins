@@ -32,6 +32,12 @@ final class ImageStreamHandler: NSObject, FlutterStreamHandler {
   }
 }
 
+public protocol DeviceOrientationProvider: AnyObject {
+  var orientation: UIDeviceOrientation { get }
+}
+
+extension UIDevice: DeviceOrientationProvider {}
+
 public protocol CaptureInput: AnyObject {
   var ports: [AVCaptureInput.Port] { get }
 }
@@ -1028,13 +1034,13 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
   }
 
-  func setExposurePoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double) throws {
+  func setExposurePoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double, deviceOrientationProvider: DeviceOrientationProvider = UIDevice.current) throws {
     if !captureDevice.isExposurePointOfInterestSupported {
       result.sendError(code: "setExposurePointFailed", message: "Device does not have exposure point capabilities", details: nil)
       return
     }
 
-    let orientation = UIDevice.current.orientation
+    let orientation = deviceOrientationProvider.orientation
     try captureDevice.lockForConfiguration()
     captureDevice.exposurePointOfInterest = getCGPointForCoordsWithOrientation(orientation, x: x, y: y)
     captureDevice.unlockForConfiguration()
@@ -1042,14 +1048,13 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     result.sendSuccess()
   }
 
-  @objc
-  public func setFocusPoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double) throws {
+  public func setFocusPoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double, deviceOrientationProvider: DeviceOrientationProvider = UIDevice.current) throws {
     if !captureDevice.isFocusPointOfInterestSupported {
       result.sendError(code: "setFocusPointFailed", message: "Device does not have focus point capabilities", details: nil)
       return
     }
 
-    let orientation = UIDevice.current.orientation
+    let orientation = deviceOrientationProvider.orientation
     try captureDevice.lockForConfiguration()
 
     captureDevice.focusPointOfInterest = getCGPointForCoordsWithOrientation(orientation, x: x, y: y)

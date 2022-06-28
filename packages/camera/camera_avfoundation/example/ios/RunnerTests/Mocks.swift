@@ -12,12 +12,16 @@ import Flutter
 import XCTest
 import AVFoundation
 
+final class MockDeviceOrientationProvider: DeviceOrientationProvider {
+  var orientation: UIDeviceOrientation = .landscapeLeft
+}
+
 final class MockCaptureConnection: CaptureConnection {
-  var isVideoOrientationSupported = false
+  var isVideoOrientationSupported: Bool = false
 
   var videoOrientation: AVCaptureVideoOrientation = .portrait
 
-  var isVideoMirrored = false
+  var isVideoMirrored: Bool = false
 
   static var captureConnectionStub: (([AVCaptureInput.Port], CaptureOutput) -> CaptureConnection)? = nil
 
@@ -31,18 +35,17 @@ final class MockCaptureDevice: CaptureDevice {
   static var deviceStub: ((String) -> CaptureDevice?)? = nil
   var isExposureModeSupportedStub: ((AVCaptureDevice.ExposureMode) -> Bool)? = nil
 
-
   var isFocusModeSupportedStub: ((AVCaptureDevice.FocusMode) -> Bool)? = nil
   var setExposureTargetBiasStub: ((Float, ((CMTime) -> Void)?) -> Void)? = nil
-  var lockForConfigurationStub: (() throws -> Void)?
-  var unlockForConfigurationStub: (() -> Void)?
+  var lockForConfigurationStub: (() throws -> Void)? = nil
+  var unlockForConfigurationStub: (() -> Void)? = nil
 
 
   static func device(with uniqueID: String) -> CaptureDevice? {
     return deviceStub?(uniqueID)
   }
 
-  var hasFlash = false
+  var hasFlash: Bool = false
 
   var position: AVCaptureDevice.Position = .front
 
@@ -54,9 +57,9 @@ final class MockCaptureDevice: CaptureDevice {
 
   var iso: Float = 0
 
-  var hasTorch = false
+  var hasTorch: Bool = false
 
-  var isTorchAvailable = false
+  var isTorchAvailable: Bool = false
 
   var torchMode: AVCaptureDevice.TorchMode = .auto
 
@@ -66,7 +69,7 @@ final class MockCaptureDevice: CaptureDevice {
     return isExposureModeSupportedStub?(mode) ?? false
   }
 
-  var focusMode: AVCaptureDevice.FocusMode
+  var focusMode: AVCaptureDevice.FocusMode = .autoFocus
 
   func isFocusModeSupported(_ mode: AVCaptureDevice.FocusMode) -> Bool {
     return isFocusModeSupportedStub?(mode) ?? false
@@ -106,11 +109,10 @@ final class MockCaptureDevice: CaptureDevice {
 }
 
 final class MockCaptureDeviceInput: CaptureDeviceInput {
-
   static var inputStub: ((CaptureDevice) throws -> CaptureDeviceInput)? = nil
 
   static func input(with device: CaptureDevice) throws -> CaptureDeviceInput {
-    return inputStub?(device) ?? MockCaptureDeviceInput()
+    return (try? inputStub?(device)) ?? MockCaptureDeviceInput()
   }
 
   var ports: [AVCaptureInput.Port] = []
@@ -199,7 +201,7 @@ final class MockCapturePhotoOutput: CapturePhotoOutput {
 
   var capturePhotoStub: ((AVCapturePhotoSettings, CapturePhotoCaptureDelegate) -> Void)? = nil
 
-  var isHighResolutionCaptureEnabled = false
+  var isHighResolutionCaptureEnabled: Bool = false
 
   var supportedFlashModes: [AVCaptureDevice.FlashMode] = []
 
