@@ -34,7 +34,6 @@
 		E022B445286A3CA2007AA9CB /* CameraTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B444286A3CA2007AA9CB /* CameraTestUtils.swift */; };
 		E026E355285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E026E354285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift */; };
 		E032F250279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */; };
-		E0CDBAC227CD9729002561D9 /* CameraTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = E0CDBAC127CD9729002561D9 /* CameraTestUtils.m */; };
 		E0F95E3D27A32AB900699390 /* CameraPropertiesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */; };
 /* End PBXBuildFile section */
 
@@ -101,8 +100,6 @@
 		E022B444286A3CA2007AA9CB /* CameraTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTestUtils.swift; sourceTree = "<group>"; };
 		E026E354285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeTextureRegistryTests.swift; sourceTree = "<group>"; };
 		E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraCaptureSessionQueueRaceConditionTests.m; sourceTree = "<group>"; };
-		E0CDBAC027CD9729002561D9 /* CameraTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraTestUtils.h; sourceTree = "<group>"; };
-		E0CDBAC127CD9729002561D9 /* CameraTestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraTestUtils.m; sourceTree = "<group>"; };
 		E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraPropertiesTests.m; sourceTree = "<group>"; };
 		EC9E84507C078ABE9C8DE9BA /* libPods-Runner.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Runner.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -145,8 +142,6 @@
 				E022B43128606B10007AA9CB /* CameraPermissionUtilsTests.swift */,
 				E01EE4A72799F3A5008C1950 /* QueueUtilsTests.m */,
 				E022B444286A3CA2007AA9CB /* CameraTestUtils.swift */,
-				E0CDBAC027CD9729002561D9 /* CameraTestUtils.h */,
-				E0CDBAC127CD9729002561D9 /* CameraTestUtils.m */,
 				E022B42D28600C14007AA9CB /* CameraPreviewPauseTests.swift */,
 				E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */,
 				E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */,
@@ -424,7 +419,6 @@
 				03BB766B2665316900CE5A93 /* CameraFocusTests.m in Sources */,
 				E026E355285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift in Sources */,
 				43ED1537282570DE00EB00DE /* AvailableCamerasTest.m in Sources */,
-				E0CDBAC227CD9729002561D9 /* CameraTestUtils.m in Sources */,
 				334733EA2668111C00DCC49E /* CameraOrientationTests.m in Sources */,
 				E022B43228606B10007AA9CB /* CameraPermissionUtilsTests.swift in Sources */,
 				E032F250279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m in Sources */,

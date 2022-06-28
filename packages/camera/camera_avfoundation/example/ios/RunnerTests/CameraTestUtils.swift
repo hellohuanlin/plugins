@@ -27,7 +27,10 @@ enum CameraTestUtils {
       orientation: .portrait,
       captureSession: captureSession,
       captureSessionQueue: captureSessionQueue,
-      capturePhotoOutput: capturePhotoOutput)!
+      capturePhotoOutput: capturePhotoOutput,
+      captureDeviceType: MockCaptureDevice.self,
+      captureDeviceInputType: MockCaptureDeviceInput.self,
+      captureConnectionType: MockCaptureConnection.self)!
   }
 
   static func createTestSampleBuffer() -> CMSampleBuffer {

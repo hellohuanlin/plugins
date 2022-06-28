@@ -10,6 +10,113 @@ import Foundation
 import Flutter
 @testable import camera_avfoundation
 import XCTest
+import AVFoundation
+
+final class MockCaptureConnection: CaptureConnection {
+  var isVideoOrientationSupported = false
+
+  var videoOrientation: AVCaptureVideoOrientation = .portrait
+
+  var isVideoMirrored = false
+
+  static var captureConnectionStub: (([AVCaptureInput.Port], CaptureOutput) -> CaptureConnection)? = nil
+
+  static func captureConnection(inputPorts: [AVCaptureInput.Port], output: CaptureOutput) -> CaptureConnection {
+    return captureConnectionStub?(inputPorts, output) ?? MockCaptureConnection()
+  }
+}
+
+final class MockCaptureDevice: CaptureDevice {
+
+  static var deviceStub: ((String) -> CaptureDevice?)? = nil
+  var isExposureModeSupportedStub: ((AVCaptureDevice.ExposureMode) -> Bool)? = nil
+
+
+  var isFocusModeSupportedStub: ((AVCaptureDevice.FocusMode) -> Bool)? = nil
+  var setExposureTargetBiasStub: ((Float, ((CMTime) -> Void)?) -> Void)? = nil
+  var lockForConfigurationStub: (() throws -> Void)?
+  var unlockForConfigurationStub: (() -> Void)?
+
+
+  static func device(with uniqueID: String) -> CaptureDevice? {
+    return deviceStub?(uniqueID)
+  }
+
+  var hasFlash = false
+
+  var position: AVCaptureDevice.Position = .front
+
+  var activeFormat: AVCaptureDevice.Format = AVCaptureDevice(uniqueID: "")!.activeFormat
+
+  var lensAperture: Float = 0
+
+  var exposureDuration: CMTime = CMTime()
+
+  var iso: Float = 0
+
+  var hasTorch = false
+
+  var isTorchAvailable = false
+
+  var torchMode: AVCaptureDevice.TorchMode = .auto
+
+  var exposureMode: AVCaptureDevice.ExposureMode = .continuousAutoExposure
+
+  func isExposureModeSupported(_ mode: AVCaptureDevice.ExposureMode) -> Bool {
+    return isExposureModeSupportedStub?(mode) ?? false
+  }
+
+  var focusMode: AVCaptureDevice.FocusMode
+
+  func isFocusModeSupported(_ mode: AVCaptureDevice.FocusMode) -> Bool {
+    return isFocusModeSupportedStub?(mode) ?? false
+  }
+
+  var isExposurePointOfInterestSupported: Bool = false
+
+  var exposurePointOfInterest: CGPoint = .zero
+
+  var isFocusPointOfInterestSupported: Bool = false
+
+  var focusPointOfInterest: CGPoint = .zero
+
+  func setExposureTargetBias(_ bias: Float, completionHandler: ((CMTime) -> Void)?) {
+    setExposureTargetBiasStub?(bias, completionHandler)
+  }
+
+  var minExposureTargetBias: Float = 0
+
+  var maxExposureTargetBias: Float = 0
+
+  var minAvailableVideoZoomFactor: CGFloat = 0
+
+  var maxAvailableVideoZoomFactor: CGFloat = 0
+
+  var videoZoomFactor: CGFloat = 0
+
+  func lockForConfiguration() throws {
+    try lockForConfigurationStub?()
+  }
+
+  func unlockForConfiguration() {
+    unlockForConfigurationStub?()
+  }
+
+  
+}
+
+final class MockCaptureDeviceInput: CaptureDeviceInput {
+
+  static var inputStub: ((CaptureDevice) throws -> CaptureDeviceInput)? = nil
+
+  static func input(with device: CaptureDevice) throws -> CaptureDeviceInput {
+    return inputStub?(device) ?? MockCaptureDeviceInput()
+  }
+
+  var ports: [AVCaptureInput.Port] = []
+
+
+}
 
 final class MockCaptureSession: CaptureSession {
 
@@ -83,7 +190,7 @@ final class MockCaptureSession: CaptureSession {
   }
 
   var sessionPreset: AVCaptureSession.Preset = .high
-  
+
 }
 
 final class MockCapturePhotoOutput: CapturePhotoOutput {
