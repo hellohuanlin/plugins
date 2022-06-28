@@ -277,7 +277,6 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     captureSessionQueue.async {
 
       do {
-        var error: NSError?
         if let cam = try FLTCam(
           cameraName: cameraName,
           resolutionPreset: resolutionPreset,

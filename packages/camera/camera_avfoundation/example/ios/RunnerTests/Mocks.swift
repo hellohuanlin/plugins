@@ -11,6 +11,18 @@ import Flutter
 @testable import camera_avfoundation
 import XCTest
 
+final class MockCapturePhotoOutput: AVCapturePhotoOutput {
+
+  var capturePhotoStub: ((AVCapturePhotoSettings, AVCapturePhotoCaptureDelegate) -> Void)? = nil
+
+  override func capturePhoto(with settings: AVCapturePhotoSettings, delegate: AVCapturePhotoCaptureDelegate) {
+    capturePhotoStub?(settings, delegate)
+    super.capturePhoto(with: settings, delegate: delegate)
+  }
+
+
+}
+
 final class MockPermissionService: PermissionService {
   static var authorizationStatusForMediaTypeStub: ((AVMediaType) -> AVAuthorizationStatus)? = nil
 

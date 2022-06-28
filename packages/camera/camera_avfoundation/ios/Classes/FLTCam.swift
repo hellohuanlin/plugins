@@ -32,16 +32,114 @@ final class ImageStreamHandler: NSObject, FlutterStreamHandler {
   }
 }
 
+public protocol CaptureInput: AnyObject {}
+extension AVCaptureInput: CaptureInput {}
+
+public protocol CaptureOutput: AnyObject {
+  func captureConnection(with mediaType: AVMediaType) -> CaptureConnection?
+}
+extension AVCaptureOutput: CaptureOutput {
+  public func captureConnection(with mediaType: AVMediaType) -> CaptureConnection? {
+    return connection(with: mediaType)
+  }
+}
+
+public protocol CapturePhotoOutput: CaptureOutput {
+  func capturePhoto(with settings: AVCapturePhotoSettings,
+           delegate: AVCapturePhotoCaptureDelegate)
+  var isHighResolutionCaptureEnabled: Bool { get set }
+  var supportedFlashModes: [AVCaptureDevice.FlashMode] { get }
+}
+
+extension AVCapturePhotoOutput: CapturePhotoOutput {}
+
+
+public protocol CaptureConnection: AnyObject {
+  var isVideoOrientationSupported: Bool { get }
+  var videoOrientation: AVCaptureVideoOrientation { get set }
+}
+extension AVCaptureConnection: CaptureConnection {}
+
+public protocol CaptureSession: AnyObject {
+  func canAddInput(_ input: CaptureInput) -> Bool
+  func canAddOutput(_ output: CaptureOutput) -> Bool
+  func addInput(_ input: CaptureInput)
+  func addOutput(_ output: CaptureOutput)
+  func removeInput(_ input: CaptureInput)
+  func removeOutput(_ output: CaptureOutput)
+  var captureInputs: [CaptureInput] { get }
+  var captureOutputs: [CaptureOutput] { get }
+
+  func addInputWithNoConnections(_ input: CaptureInput)
+  func addOutputWithNoConnections(_ output: CaptureOutput)
+  func addConnection(_ connection: CaptureConnection)
+
+  func startRunning()
+  func stopRunning()
+
+  func canSetSessionPreset(_ preset: AVCaptureSession.Preset) -> Bool
+  var sessionPreset: AVCaptureSession.Preset { get set }
+
+}
+
+extension AVCaptureSession: CaptureSession {
+
+  public func canAddInput(_ input: CaptureInput) -> Bool {
+    return canAddInput(input as! AVCaptureInput)
+  }
+
+  public func canAddOutput(_ output: CaptureOutput) -> Bool {
+    return canAddOutput(output as! AVCaptureOutput)
+  }
+
+  public func addOutput(_ output: CaptureOutput) {
+    addOutput(output as! AVCaptureOutput)
+  }
+
+  public func addInput(_ input: CaptureInput) {
+    addInput(input as! AVCaptureInput)
+  }
+
+  public func removeInput(_ input: CaptureInput) {
+    removeInput(input as! AVCaptureInput)
+  }
+
+  public func removeOutput(_ output: CaptureOutput) {
+    removeOutput(output as! AVCaptureOutput)
+  }
+
+  public var captureInputs: [CaptureInput] {
+    return inputs as [CaptureInput]
+  }
+  public var captureOutputs: [CaptureOutput] {
+    return outputs as [CaptureOutput]
+  }
+
+  public func addInputWithNoConnections(_ input: CaptureInput) {
+    addInputWithNoConnections(input as! AVCaptureInput)
+  }
+
+  public func addOutputWithNoConnections(_ output: CaptureOutput) {
+    addOutputWithNoConnections(output as! AVCaptureOutput)
+  }
+
+  public func addConnection(_ connection: CaptureConnection) {
+    addConnection(connection as! AVCaptureConnection)
+  }
+
+}
+
 public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, FlutterTexture {
 
-  private let captureVideoOutput: AVCaptureVideoDataOutput
-  private let capturePhotoOutput: AVCapturePhotoOutput
+  @objc
+  public let captureVideoOutput: AVCaptureVideoDataOutput
+  private let capturePhotoOutput: CapturePhotoOutput
   private var isStreamingImages: Bool
   private var inProgressSavePhotoDelegates = [Int64:SavePhotoDelegate]()
 
   let captureDevice: AVCaptureDevice
   var previewSize: CGSize
-  private var isPreviewPaused: Bool
+  private(set) var isPreviewPaused: Bool
   var onFrameAvailable: (() -> Void)?
   var methodChannel: ThreadSafeMethodChannel!
   let resolutionPreset: FLTResolutionPreset
@@ -53,7 +151,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   private var textureId: Int64
   private let enableAudio: Bool
   private var imageStreamHandler: ImageStreamHandler?
-  private let captureSession: AVCaptureSession
+  private let captureSession: CaptureSession
   private let captureVideoInput: AVCaptureInput
   private var latestPixelBuffer: CVPixelBuffer?
   private let captureSize: CGSize
@@ -85,7 +183,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   private var deviceOrientation: UIDeviceOrientation
 
 
-  init?(cameraName: String, resolutionPreset: String, enableAudio: Bool, orientation: UIDeviceOrientation, captureSession: AVCaptureSession, captureSessionQueue: DispatchQueue) throws {
+  init?(cameraName: String, resolutionPreset: String, enableAudio: Bool, orientation: UIDeviceOrientation, captureSession: CaptureSession, captureSessionQueue: DispatchQueue, capturePhotoOutput: CapturePhotoOutput = AVCapturePhotoOutput()) throws {
 
     self.resolutionPreset = FLTGetFLTResolutionPresetForString(resolutionPreset)
 
@@ -119,8 +217,8 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     captureSession.addOutputWithNoConnections(captureVideoOutput)
     captureSession.addConnection(connection)
 
-    capturePhotoOutput = AVCapturePhotoOutput()
-    capturePhotoOutput.isHighResolutionCaptureEnabled = true
+    self.capturePhotoOutput = capturePhotoOutput
+    self.capturePhotoOutput.isHighResolutionCaptureEnabled = true
     captureSession.addOutput(capturePhotoOutput)
 
     // TODO: make these defalt values
@@ -171,7 +269,8 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     captureVideoOutput.videoSettings = [String(kCVPixelBufferPixelFormatTypeKey):Int(videoFormat)]
   }
 
-  func setDeviceOrientation(_ orientation: UIDeviceOrientation) {
+  @objc
+  public func setDeviceOrientation(_ orientation: UIDeviceOrientation) {
     if self.deviceOrientation == orientation {
       return
     }
@@ -193,12 +292,12 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     updateOrientation(orientation, forCaptureOutput: captureVideoOutput)
   }
 
-  private func updateOrientation(_ orientation: UIDeviceOrientation, forCaptureOutput captureOutput: AVCaptureOutput?) {
+  private func updateOrientation(_ orientation: UIDeviceOrientation, forCaptureOutput captureOutput: CaptureOutput?) {
     guard let captureOutput = captureOutput else {
       return
     }
 
-    if let connection = captureOutput.connection(with: .video), connection.isVideoOrientationSupported {
+    if let connection = captureOutput.captureConnection(with: .video), connection.isVideoOrientationSupported {
       connection.videoOrientation = getVideoOrientationForDeviceOrientation(orientation)
     }
 
@@ -324,9 +423,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
       let newBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
 
-      var previousPixelBuffer: CVPixelBuffer?
       pixelBufferSynchronizationQueue.sync {
-        previousPixelBuffer = self.latestPixelBuffer
         self.latestPixelBuffer = newBuffer
       }
       if let onFrameAvailable = onFrameAvailable {
@@ -534,10 +631,10 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
   func close() {
     captureSession.stopRunning()
-    for input in captureSession.inputs {
+    for input in captureSession.captureInputs {
       captureSession.removeInput(input)
     }
-    for output in captureSession.outputs {
+    for output in captureSession.captureOutputs {
       captureSession.removeOutput(output)
     }
   }
@@ -806,6 +903,10 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   }
 
   func applyFocusMode() throws {
+    try applyFocusMode(focusMode, on: captureDevice)
+  }
+
+  public func applyFocusMode(_ mode: FLTFocusMode, on device: AVCaptureDevice) throws {
     try captureDevice.lockForConfiguration()
     switch focusMode {
     case .locked:
@@ -861,8 +962,8 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     result.sendSuccess()
   }
 
-
-  func setFocusPoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double) throws {
+  @objc
+  public func setFocusPoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double) throws {
     if !captureDevice.isFocusPointOfInterestSupported {
       result.sendError(code: "setFocusPointFailed", message: "Device does not have focus point capabilities", details: nil)
       return
