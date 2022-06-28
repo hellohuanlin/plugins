@@ -282,7 +282,6 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
           resolutionPreset: resolutionPreset,
           enableAudio: enableAudio,
           orientation: UIDevice.current.orientation,
-          captureSession: AVCaptureSession(),
           captureSessionQueue: self.captureSessionQueue)
         {
           self.camera?.close()

@@ -18,7 +18,7 @@ public protocol DataWritable {
 
 extension NSData: DataWritable {}
 
-public class SavePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+public class SavePhotoDelegate: NSObject, CapturePhotoCaptureDelegate {
 
   enum SavePhotoError: Error {
     case invalidData
@@ -63,7 +63,7 @@ public class SavePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   }
 
   public func photoOutput(
-    _ output: AVCapturePhotoOutput,
+    _ output: CapturePhotoOutput,
     didFinishProcessingPhoto photo: AVCapturePhoto,
     error: Error?)
   {

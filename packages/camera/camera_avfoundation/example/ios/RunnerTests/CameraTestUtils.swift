@@ -15,14 +15,19 @@ import Flutter
 enum CameraTestUtils {
 
 
-  static func createCam(on captureSessionQueue: DispatchQueue, captureSession: AVCaptureSession) -> FLTCam {
+  static func createCam(
+    on captureSessionQueue: DispatchQueue,
+    captureSession: CaptureSession = MockCaptureSession(),
+    capturePhotoOutput: CapturePhotoOutput = MockCapturePhotoOutput()) -> FLTCam
+  {
     return try! FLTCam(
       cameraName: "camera",
       resolutionPreset: "medium",
       enableAudio: true,
       orientation: .portrait,
       captureSession: captureSession,
-      captureSessionQueue: captureSessionQueue)!
+      captureSessionQueue: captureSessionQueue,
+      capturePhotoOutput: capturePhotoOutput)!
   }
 
   static func createTestSampleBuffer() -> CMSampleBuffer {

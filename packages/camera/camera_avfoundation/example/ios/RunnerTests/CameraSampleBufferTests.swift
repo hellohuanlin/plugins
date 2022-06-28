@@ -16,13 +16,13 @@ final class CmaeraSampleBufferTests: XCTestCase {
 
   func testSampleBufferCallbackQueueMustBeCaptureSessionQueue() {
     let captureSessionQueue = DispatchQueue(label: "test")
-    let cam = CameraTestUtils.createCam(on: captureSessionQueue, captureSession: AVCaptureSession())
+    let cam = CameraTestUtils.createCam(on: captureSessionQueue)
     XCTAssertEqual(captureSessionQueue, cam.captureVideoOutput.sampleBufferCallbackQueue, "Sample buffer callback queue must be the capture session queue.")
   }
 
   func testCopyPixelBuffer() {
     let captureSessionQueue = DispatchQueue(label: "test")
-    let cam = CameraTestUtils.createCam(on: captureSessionQueue, captureSession: AVCaptureSession())
+    let cam = CameraTestUtils.createCam(on: captureSessionQueue)
     let capturedSampleBuffer = CameraTestUtils.createTestSampleBuffer()
     let capturedPixelBuffer = CMSampleBufferGetImageBuffer(capturedSampleBuffer)
     cam.captureOutput(cam.captureVideoOutput, didOutput: capturedSampleBuffer, from: AVCaptureConnection(inputPorts: [], output: cam.captureVideoOutput))

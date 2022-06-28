@@ -32,7 +32,9 @@ final class ImageStreamHandler: NSObject, FlutterStreamHandler {
   }
 }
 
-public protocol CaptureInput: AnyObject {}
+public protocol CaptureInput: AnyObject {
+  var ports: [AVCaptureInput.Port] { get }
+}
 extension AVCaptureInput: CaptureInput {}
 
 public protocol CaptureOutput: AnyObject {
@@ -44,21 +46,37 @@ extension AVCaptureOutput: CaptureOutput {
   }
 }
 
+public protocol CapturePhotoCaptureDelegate: AnyObject {
+  func photoOutput(
+    _ output: CapturePhotoOutput,
+    didFinishProcessingPhoto photo: AVCapturePhoto,
+    error: Error?)
+}
+
 public protocol CapturePhotoOutput: CaptureOutput {
   func capturePhoto(with settings: AVCapturePhotoSettings,
-           delegate: AVCapturePhotoCaptureDelegate)
+           delegate: CapturePhotoCaptureDelegate)
   var isHighResolutionCaptureEnabled: Bool { get set }
   var supportedFlashModes: [AVCaptureDevice.FlashMode] { get }
 }
 
-extension AVCapturePhotoOutput: CapturePhotoOutput {}
-
+extension AVCapturePhotoOutput: CapturePhotoOutput {
+  public func capturePhoto(with settings: AVCapturePhotoSettings, delegate: CapturePhotoCaptureDelegate) {
+    capturePhoto(with: settings, delegate: delegate as! AVCapturePhotoCaptureDelegate)
+  }
+}
 
 public protocol CaptureConnection: AnyObject {
   var isVideoOrientationSupported: Bool { get }
   var videoOrientation: AVCaptureVideoOrientation { get set }
+  var isVideoMirrored: Bool { get set }
+  static func captureConnection(inputPorts: [AVCaptureInput.Port], output: CaptureOutput) -> CaptureConnection
 }
-extension AVCaptureConnection: CaptureConnection {}
+extension AVCaptureConnection: CaptureConnection {
+  public static func captureConnection(inputPorts: [AVCaptureInput.Port], output: CaptureOutput) -> CaptureConnection {
+    return AVCaptureConnection(inputPorts: inputPorts, output: output as! AVCaptureOutput)
+  }
+}
 
 public protocol CaptureSession: AnyObject {
   func canAddInput(_ input: CaptureInput) -> Bool
@@ -126,7 +144,57 @@ extension AVCaptureSession: CaptureSession {
   public func addConnection(_ connection: CaptureConnection) {
     addConnection(connection as! AVCaptureConnection)
   }
+}
 
+public protocol CaptureDevice: AnyObject {
+  static func device(with uniqueID: String) -> CaptureDevice?
+
+  var hasFlash: Bool { get }
+  var position: AVCaptureDevice.Position { get }
+  var activeFormat: AVCaptureDevice.Format { get }
+  var lensAperture: Float { get }
+  var exposureDuration: CMTime { get }
+  var iso: Float { get }
+
+  var hasTorch: Bool { get }
+  var isTorchAvailable: Bool { get }
+  var torchMode: AVCaptureDevice.TorchMode { get set }
+  var exposureMode: AVCaptureDevice.ExposureMode { get set }
+  func isExposureModeSupported(_ mode: AVCaptureDevice.ExposureMode) -> Bool
+  var focusMode: AVCaptureDevice.FocusMode { get set }
+  func isFocusModeSupported(_ mode: AVCaptureDevice.FocusMode) -> Bool
+
+  var isExposurePointOfInterestSupported: Bool { get }
+  var exposurePointOfInterest: CGPoint { get set }
+  var isFocusPointOfInterestSupported: Bool { get }
+  var focusPointOfInterest: CGPoint { get set }
+
+  func setExposureTargetBias(_ bias: Float, completionHandler: ((CMTime) -> Void)?)
+  var minExposureTargetBias: Float { get }
+  var maxExposureTargetBias: Float { get }
+
+  var minAvailableVideoZoomFactor: CGFloat { get }
+  var maxAvailableVideoZoomFactor: CGFloat { get }
+  var videoZoomFactor: CGFloat { get set }
+
+  func lockForConfiguration() throws
+  func unlockForConfiguration()
+}
+
+extension AVCaptureDevice: CaptureDevice {
+  public static func device(with uniqueID: String) -> CaptureDevice? {
+    return AVCaptureDevice(uniqueID: uniqueID)
+  }
+}
+
+public protocol CaptureDeviceInput: CaptureInput {
+  static func input(with device: CaptureDevice) throws -> CaptureDeviceInput
+}
+
+extension AVCaptureDeviceInput: CaptureDeviceInput {
+  public static func input(with device: CaptureDevice) throws -> CaptureDeviceInput {
+    return try AVCaptureDeviceInput(device: device as! AVCaptureDevice)
+  }
 }
 
 public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, FlutterTexture {
@@ -135,9 +203,9 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   public let captureVideoOutput: AVCaptureVideoDataOutput
   private let capturePhotoOutput: CapturePhotoOutput
   private var isStreamingImages: Bool
-  private var inProgressSavePhotoDelegates = [Int64:SavePhotoDelegate]()
+  private(set) var inProgressSavePhotoDelegates = [Int64:CapturePhotoCaptureDelegate]()
 
-  let captureDevice: AVCaptureDevice
+  let captureDevice: CaptureDevice
   var previewSize: CGSize
   private(set) var isPreviewPaused: Bool
   var onFrameAvailable: (() -> Void)?
@@ -152,7 +220,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   private let enableAudio: Bool
   private var imageStreamHandler: ImageStreamHandler?
   private let captureSession: CaptureSession
-  private let captureVideoInput: AVCaptureInput
+  private let captureVideoInput: CaptureInput
   private var latestPixelBuffer: CVPixelBuffer?
   private let captureSize: CGSize
   private var videoWriter: AVAssetWriter!
@@ -183,7 +251,18 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   private var deviceOrientation: UIDeviceOrientation
 
 
-  init?(cameraName: String, resolutionPreset: String, enableAudio: Bool, orientation: UIDeviceOrientation, captureSession: CaptureSession, captureSessionQueue: DispatchQueue, capturePhotoOutput: CapturePhotoOutput = AVCapturePhotoOutput()) throws {
+  init?(
+    cameraName: String,
+    resolutionPreset: String,
+    enableAudio: Bool,
+    orientation: UIDeviceOrientation,
+    captureSession: CaptureSession = AVCaptureSession(),
+    captureSessionQueue: DispatchQueue,
+    capturePhotoOutput: CapturePhotoOutput = AVCapturePhotoOutput(),
+    captureDeviceType: CaptureDevice.Type = AVCaptureDevice.self,
+    captureDeviceInputType: CaptureDeviceInput.Type = AVCaptureDeviceInput.self,
+    captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self) throws
+  {
 
     self.resolutionPreset = FLTGetFLTResolutionPresetForString(resolutionPreset)
 
@@ -192,7 +271,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     self.pixelBufferSynchronizationQueue = DispatchQueue(label: "io.flutter.camera.pixelBufferSynchronizationQueue")
     self.photoIOQueue = DispatchQueue(label: "io.flutter.camera.photoIOQueue")
     self.captureSession = captureSession
-    self.captureDevice = AVCaptureDevice(uniqueID: cameraName)!
+    self.captureDevice = captureDeviceType.device(with: cameraName)!
     self.flashMode = captureDevice.hasFlash ? .auto : .off
     self.exposureMode = .auto
     self.focusMode = .auto
@@ -200,14 +279,15 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     self.deviceOrientation = orientation
     self.videoFormat = kCVPixelFormatType_32BGRA
     self.maxStreamingPendingFramesCount = 4
-    try self.captureVideoInput = AVCaptureDeviceInput(device: captureDevice)
+    try self.captureVideoInput = captureDeviceInputType.input(with: captureDevice)
 
     self.captureVideoOutput = AVCaptureVideoDataOutput()
     captureVideoOutput.videoSettings = [String(kCVPixelBufferPixelFormatTypeKey):Int(videoFormat)]
 
     captureVideoOutput.alwaysDiscardsLateVideoFrames = true
 
-    let connection = AVCaptureConnection(inputPorts: captureVideoInput.ports, output: captureVideoOutput)
+
+    let connection = captureConnectionType.captureConnection(inputPorts: captureVideoInput.ports, output: captureVideoOutput)
 
     if captureDevice.position == .front {
       connection.isVideoMirrored = true
@@ -906,7 +986,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     try applyFocusMode(focusMode, on: captureDevice)
   }
 
-  public func applyFocusMode(_ mode: FLTFocusMode, on device: AVCaptureDevice) throws {
+  public func applyFocusMode(_ mode: FLTFocusMode, on device: CaptureDevice) throws {
     try captureDevice.lockForConfiguration()
     switch focusMode {
     case .locked:

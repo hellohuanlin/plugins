@@ -11,15 +11,98 @@ import Flutter
 @testable import camera_avfoundation
 import XCTest
 
-final class MockCapturePhotoOutput: AVCapturePhotoOutput {
+final class MockCaptureSession: CaptureSession {
 
-  var capturePhotoStub: ((AVCapturePhotoSettings, AVCapturePhotoCaptureDelegate) -> Void)? = nil
+  var canAddInputStub: ((CaptureInput) -> Bool)?
+  var canAddOutputStub: ((CaptureOutput) -> Bool)?
+  var addInputStub: ((CaptureInput) -> Void)?
+  var addOutputStub: ((CaptureOutput) -> Void)?
+  var removeInputStub: ((CaptureInput) -> Void)?
+  var removeOutputStub: ((CaptureOutput) -> Void)?
 
-  override func capturePhoto(with settings: AVCapturePhotoSettings, delegate: AVCapturePhotoCaptureDelegate) {
-    capturePhotoStub?(settings, delegate)
-    super.capturePhoto(with: settings, delegate: delegate)
+  var addInputWithNoConnectionsStub: ((CaptureInput) -> Void)?
+  var addOutputWithNoConnectionsStub: ((CaptureOutput) -> Void)?
+  var addConnectionStub: ((CaptureConnection) -> Void)?
+
+  var startRunningStub: (() -> Void)?
+
+  var stopRunningStub: (() -> Void)?
+
+  var canSetSessionPresetStub: ((AVCaptureSession.Preset) -> Bool)?
+
+  func canAddInput(_ input: CaptureInput) -> Bool {
+    return canAddInputStub?(input) ?? false
   }
 
+  func canAddOutput(_ output: CaptureOutput) -> Bool {
+    return canAddOutputStub?(output) ?? false
+  }
+
+  func addInput(_ input: CaptureInput) {
+    addInputStub?(input)
+  }
+
+  func addOutput(_ output: CaptureOutput) {
+    addOutputStub?(output)
+  }
+
+  func removeInput(_ input: CaptureInput) {
+    removeInputStub?(input)
+  }
+
+  func removeOutput(_ output: CaptureOutput) {
+    removeOutputStub?(output)
+  }
+
+  var captureInputs: [CaptureInput] = []
+
+  var captureOutputs: [CaptureOutput] = []
+
+  func addInputWithNoConnections(_ input: CaptureInput) {
+    addInputWithNoConnectionsStub?(input)
+  }
+
+  func addOutputWithNoConnections(_ output: CaptureOutput) {
+    addOutputWithNoConnectionsStub?(output)
+  }
+
+  func addConnection(_ connection: CaptureConnection) {
+    addConnectionStub?(connection)
+  }
+
+  func startRunning() {
+    startRunningStub?()
+  }
+
+  func stopRunning() {
+    stopRunningStub?()
+  }
+
+  func canSetSessionPreset(_ preset: AVCaptureSession.Preset) -> Bool {
+    return canSetSessionPresetStub?(preset) ?? false
+  }
+
+  var sessionPreset: AVCaptureSession.Preset = .high
+  
+}
+
+final class MockCapturePhotoOutput: CapturePhotoOutput {
+
+  var captureConnectionStub: ((AVMediaType) -> CaptureConnection?)? = nil
+
+  var capturePhotoStub: ((AVCapturePhotoSettings, CapturePhotoCaptureDelegate) -> Void)? = nil
+
+  var isHighResolutionCaptureEnabled = false
+
+  var supportedFlashModes: [AVCaptureDevice.FlashMode] = []
+
+  func captureConnection(with mediaType: AVMediaType) -> CaptureConnection? {
+    return captureConnectionStub?(mediaType)
+  }
+
+  func capturePhoto(with settings: AVCapturePhotoSettings, delegate: CapturePhotoCaptureDelegate) {
+    capturePhotoStub?(settings, delegate)
+  }
 
 }
 
