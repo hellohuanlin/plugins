@@ -329,3 +329,27 @@ class MockTextureRegistry: NSObject, FlutterTextureRegistry {
     textureFrameAvailableStub?(textureId)
   }
 }
+
+class MockBinaryMessenger: NSObject, FlutterBinaryMessenger {
+
+  var sendOnChannelStub: ((String, Data?) -> Void)? = nil
+  var sendOnChannelWithBinaryReplyStub: ((String, Data?, FlutterBinaryReply?) -> Void)? = nil
+  var setMessageHandlerOnChannelStub: ((String, FlutterBinaryMessageHandler?) -> FlutterBinaryMessengerConnection)? = nil
+  var cleanUpConnectionStub: ((FlutterBinaryMessengerConnection) -> Void)? = nil
+
+  func send(onChannel channel: String, message: Data?) {
+    sendOnChannelStub?(channel, message)
+  }
+
+  func send(onChannel channel: String, message: Data?, binaryReply callback: FlutterBinaryReply? = nil) {
+    sendOnChannelWithBinaryReplyStub?(channel, message, callback)
+  }
+
+  func setMessageHandlerOnChannel(_ channel: String, binaryMessageHandler handler: FlutterBinaryMessageHandler? = nil) -> FlutterBinaryMessengerConnection {
+    return setMessageHandlerOnChannelStub?(channel, handler) ?? FlutterBinaryMessengerConnection()
+  }
+
+  func cleanUpConnection(_ connection: FlutterBinaryMessengerConnection) {
+    cleanUpConnectionStub?(connection)
+  }
+}
