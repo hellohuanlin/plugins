@@ -12,6 +12,210 @@ import Flutter
 import XCTest
 import AVFoundation
 
+
+final class MockFLTCam: NSObject, FLTCamProtocol {
+  var captureVideoOutput: AVCaptureVideoDataOutput = AVCaptureVideoDataOutput()
+
+  var captureDevice: CaptureDevice = MockCaptureDevice()
+
+  var previewSize: CGSize = .zero
+
+  var isPreviewPaused: Bool = false
+
+  var onFrameAvailable: (() -> Void)? = nil
+
+  var methodChannel: ThreadSafeMethodChannel! = nil
+
+  var resolutionPreset: FLTResolutionPreset = .high
+
+  var exposureMode: FLTExposureMode = .locked
+
+  var focusMode: FLTFocusMode = .locked
+
+  var flashMode: FLTFlashMode = .auto
+
+  var videoFormat: FourCharCode = .max
+
+  var startStub: (() -> Void)? = nil
+  var stopStub: (() -> Void)? = nil
+  var setVideoFormatStub: ((OSType) -> Void)? = nil
+  var setDeviceOrientationStub: ((UIDeviceOrientation) -> Void)? = nil
+  var captureToFileStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+  var closeStub: (() -> Void)? = nil
+
+  func start() {
+    startStub?()
+  }
+
+  func stop() {
+    stopStub?()
+  }
+
+  func setVideoFormat(_ videoFormat: OSType) {
+    setVideoFormatStub?(videoFormat)
+  }
+
+  func setDeviceOrientation(_ orientation: UIDeviceOrientation) {
+    setDeviceOrientationStub?(orientation)
+  }
+
+  func captureToFile(with result: ThreadSafeFlutterResultProtocol) {
+    captureToFileStub?(result)
+  }
+
+  func close() {
+    closeStub?()
+  }
+
+  var copyPixelBufferStub: (() -> Unmanaged<CVPixelBuffer>?)? = nil
+  var startVideoRecordingStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+  var setupWriterForPathStub: ((String?) throws -> Bool)? = nil
+  var setupCaptureSessionForAudioStub: (() throws -> Void)? = nil
+  var stopVideoRecordingStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+  var pauseVideoRecordingStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+  var resumeVideoRecordingStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+
+
+  func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
+    return copyPixelBufferStub?() ?? nil
+  }
+
+  func startVideoRecording(with result: ThreadSafeFlutterResultProtocol) {
+    startVideoRecordingStub?(result)
+  }
+
+  func setupWriterForPath(_ path: String?) throws -> Bool {
+    return try setupWriterForPathStub?(path) ?? false
+  }
+
+  func setUpCaptureSessionForAudio() throws {
+    try setupCaptureSessionForAudioStub?()
+  }
+
+  func stopVideoRecording(with result: ThreadSafeFlutterResultProtocol) {
+    stopVideoRecordingStub?(result)
+  }
+
+  func pauseVideoRecording(with result: ThreadSafeFlutterResultProtocol) {
+    pauseVideoRecordingStub?(result)
+  }
+
+  func resumeVideoRecording(with result: ThreadSafeFlutterResultProtocol) {
+    resumeVideoRecordingStub?(result)
+  }
+
+
+  var lockCaptureOrientationStub: ((ThreadSafeFlutterResultProtocol, String) -> Void)? = nil
+  var unlockCaptureOrientationStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+  var setFlashModeStub: ((ThreadSafeFlutterResultProtocol, String) throws -> Void)? = nil
+  var setExposureModeStub: ((ThreadSafeFlutterResultProtocol, String) -> Void)? = nil
+  var setFocusModeStub: ((ThreadSafeFlutterResultProtocol, String) throws -> Void)? = nil
+
+
+  func lockCaptureOrientation(with result: ThreadSafeFlutterResultProtocol, orientation orientationStr: String) {
+    lockCaptureOrientationStub?(result, orientationStr)
+  }
+
+  func unlockCaptureOrientation(with result: ThreadSafeFlutterResultProtocol) {
+    unlockCaptureOrientationStub?(result)
+  }
+
+  func setFlashMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws {
+    try setFlashModeStub?(result, modeStr)
+  }
+
+  func setExposureMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws {
+    setExposureModeStub?(result, modeStr)
+  }
+
+  var applyExposureModeStub: (() throws -> Void)? = nil
+  func applyExposureMode() throws {
+    try applyExposureModeStub?()
+  }
+
+  func setFocusMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws {
+    try setFocusModeStub?(result, modeStr)
+  }
+
+
+  var applyFocusModeStub: (() throws -> Void)? = nil
+  func applyFocusMode() throws {
+    try applyFocusModeStub?()
+  }
+
+  var applyFocusModeOnStub: ((FLTFocusMode, CaptureDevice) throws -> Void)? = nil
+  func applyFocusMode(_ mode: FLTFocusMode, on device: CaptureDevice) throws {
+    try applyFocusModeOnStub?(mode, device)
+  }
+
+  var pausePreviewStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+
+  func pausePreview(with result: ThreadSafeFlutterResultProtocol) {
+    pauseVideoRecordingStub?(result)
+  }
+
+  var resumePreviewStub: ((ThreadSafeFlutterResultProtocol) -> Void)? = nil
+
+  func resumePreview(with result: ThreadSafeFlutterResultProtocol) {
+    resumePreviewStub?(result)
+  }
+
+  var getCGPointForCoordsWithOrientationStub: ((UIDeviceOrientation, Double, Double) -> CGPoint)? = nil
+  func getCGPointForCoordsWithOrientation(_ orientation: UIDeviceOrientation, x: Double, y: Double) -> CGPoint {
+    return getCGPointForCoordsWithOrientationStub?(orientation, x, y) ?? .zero
+  }
+
+  func setExposurePoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double, deviceOrientationProvider: DeviceOrientationProvider) throws {
+
+  }
+
+  func setFocusPoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double, deviceOrientationProvider: DeviceOrientationProvider) throws {
+
+  }
+
+  func setExposureOffset(with result: ThreadSafeFlutterResultProtocol, offset: Double) throws {
+
+  }
+
+  func startImageStream(with messenger: FlutterBinaryMessenger) {
+
+  }
+
+  func startImageStream(with messenger: FlutterBinaryMessenger, imageStreamHandler: ImageStreamHandler) {
+
+  }
+
+  func stopImageStream() {
+
+  }
+
+  func receivedImageStreamData() {
+
+  }
+
+  func getMaxZoomLevel(with result: ThreadSafeFlutterResultProtocol) {
+
+  }
+
+  func getMinZoomLevel(with result: ThreadSafeFlutterResultProtocol) {
+
+  }
+
+  func setZoomLevel(_ zoom: CGFloat, result: ThreadSafeFlutterResultProtocol) throws {
+
+  }
+
+  func getMaxAvailableZoomFactor() -> CGFloat {
+
+  }
+
+  func getMinAvailableZoomFactor() -> CGFloat {
+
+  }
+
+
+}
+
 final class MockDeviceOrientationProvider: DeviceOrientationProvider {
   var orientation: UIDeviceOrientation = .landscapeLeft
 }

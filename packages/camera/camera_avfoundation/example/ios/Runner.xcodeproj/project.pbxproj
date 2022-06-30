@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
-		334733EA2668111C00DCC49E /* CameraOrientationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 03BB767226653ABE00CE5A93 /* CameraOrientationTests.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		43ED1537282570DE00EB00DE /* AvailableCamerasTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 43ED1536282570DE00EB00DE /* AvailableCamerasTest.m */; };
 		466B9533014B1F72A5B66B51 /* libPods-Runner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9E84507C078ABE9C8DE9BA /* libPods-Runner.a */; };
@@ -32,6 +31,7 @@
 		E022B445286A3CA2007AA9CB /* CameraTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B444286A3CA2007AA9CB /* CameraTestUtils.swift */; };
 		E022B467286AAE7B007AA9CB /* CameraFocusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B466286AAE7B007AA9CB /* CameraFocusTests.swift */; };
 		E022B469286CD465007AA9CB /* CameraMethodChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B468286CD465007AA9CB /* CameraMethodChannelTests.swift */; };
+		E022B46B286CD793007AA9CB /* CameraOrientationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B46A286CD793007AA9CB /* CameraOrientationTests.swift */; };
 		E026E355285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E026E354285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift */; };
 		E032F250279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */; };
 		E0F95E3D27A32AB900699390 /* CameraPropertiesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */; };
@@ -63,7 +63,6 @@
 /* Begin PBXFileReference section */
 		03BB76682665316900CE5A93 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		03BB766C2665316900CE5A93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		03BB767226653ABE00CE5A93 /* CameraOrientationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraOrientationTests.m; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		14AE82C910C2A12F2ECB2094 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
@@ -98,6 +97,7 @@
 		E022B444286A3CA2007AA9CB /* CameraTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTestUtils.swift; sourceTree = "<group>"; };
 		E022B466286AAE7B007AA9CB /* CameraFocusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFocusTests.swift; sourceTree = "<group>"; };
 		E022B468286CD465007AA9CB /* CameraMethodChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraMethodChannelTests.swift; sourceTree = "<group>"; };
+		E022B46A286CD793007AA9CB /* CameraOrientationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOrientationTests.swift; sourceTree = "<group>"; };
 		E026E354285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeTextureRegistryTests.swift; sourceTree = "<group>"; };
 		E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraCaptureSessionQueueRaceConditionTests.m; sourceTree = "<group>"; };
 		E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraPropertiesTests.m; sourceTree = "<group>"; };
@@ -128,7 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				E022B466286AAE7B007AA9CB /* CameraFocusTests.swift */,
-				03BB767226653ABE00CE5A93 /* CameraOrientationTests.m */,
+				E022B46A286CD793007AA9CB /* CameraOrientationTests.swift */,
 				03BB766C2665316900CE5A93 /* Info.plist */,
 				E022B468286CD465007AA9CB /* CameraMethodChannelTests.swift */,
 				E022B42B28600879007AA9CB /* ThreadSafeFlutterResultTests.swift */,
@@ -414,12 +414,12 @@
 				E022B445286A3CA2007AA9CB /* CameraTestUtils.swift in Sources */,
 				E022B467286AAE7B007AA9CB /* CameraFocusTests.swift in Sources */,
 				E022B441286A341F007AA9CB /* CameraSampleBufferTests.swift in Sources */,
+				E022B46B286CD793007AA9CB /* CameraOrientationTests.swift in Sources */,
 				E022B443286A3C18007AA9CB /* CameraPhotoCaptureTests.swift in Sources */,
 				E0F95E3D27A32AB900699390 /* CameraPropertiesTests.m in Sources */,
 				E026E355285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift in Sources */,
 				E022B469286CD465007AA9CB /* CameraMethodChannelTests.swift in Sources */,
 				43ED1537282570DE00EB00DE /* AvailableCamerasTest.m in Sources */,
-				334733EA2668111C00DCC49E /* CameraOrientationTests.m in Sources */,
 				E022B43228606B10007AA9CB /* CameraPermissionUtilsTests.swift in Sources */,
 				E032F250279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m in Sources */,
 				E022B42C28600879007AA9CB /* ThreadSafeFlutterResultTests.swift in Sources */,

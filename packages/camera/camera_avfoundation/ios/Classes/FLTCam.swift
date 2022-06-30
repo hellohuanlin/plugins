@@ -9,7 +9,7 @@ import Foundation
 import Flutter
 import AVFoundation
 
-final class ImageStreamHandler: NSObject, FlutterStreamHandler {
+public final class ImageStreamHandler: NSObject, FlutterStreamHandler {
   init(captureSessionQueue: DispatchQueue) {
     self.captureSessionQueue = captureSessionQueue
   }
@@ -17,14 +17,14 @@ final class ImageStreamHandler: NSObject, FlutterStreamHandler {
   private let captureSessionQueue: DispatchQueue
   private(set) var eventSink: FlutterEventSink? = nil
 
-  func onCancel(withArguments arguments: Any?) -> FlutterError? {
+  public func onCancel(withArguments arguments: Any?) -> FlutterError? {
     captureSessionQueue.async {
       self.eventSink = nil
     }
     return nil
   }
 
-  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+  public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
     captureSessionQueue.async {
       self.eventSink = events
     }
@@ -203,7 +203,104 @@ extension AVCaptureDeviceInput: CaptureDeviceInput {
   }
 }
 
-public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, FlutterTexture {
+
+protocol FLTCamProtocol: FlutterTexture {
+
+  var captureVideoOutput: AVCaptureVideoDataOutput { get }
+  var captureDevice: CaptureDevice { get }
+  var previewSize: CGSize { get }
+  var isPreviewPaused: Bool { get }
+  var onFrameAvailable: (() -> Void)? { get set }
+  var methodChannel: ThreadSafeMethodChannel! { get set }
+  var resolutionPreset: FLTResolutionPreset { get }
+
+
+  var exposureMode: FLTExposureMode { get }
+  var focusMode: FLTFocusMode { get }
+  var flashMode: FLTFlashMode { get }
+
+  var videoFormat: FourCharCode { get set }
+
+
+
+  func start()
+  func stop()
+
+  func setVideoFormat(_ videoFormat: OSType)
+
+  func setDeviceOrientation(_ orientation: UIDeviceOrientation)
+
+  func captureToFile(with result: ThreadSafeFlutterResultProtocol)
+
+  func close()
+
+  func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>?
+
+  func startVideoRecording(with result: ThreadSafeFlutterResultProtocol)
+
+  func setupWriterForPath(_ path: String?) throws -> Bool
+  func setUpCaptureSessionForAudio() throws
+
+
+
+
+  func stopVideoRecording(with result: ThreadSafeFlutterResultProtocol)
+
+  func pauseVideoRecording(with result: ThreadSafeFlutterResultProtocol)
+
+  func resumeVideoRecording(with result: ThreadSafeFlutterResultProtocol)
+
+  func lockCaptureOrientation(with result: ThreadSafeFlutterResultProtocol, orientation orientationStr: String)
+
+  func unlockCaptureOrientation(with result: ThreadSafeFlutterResultProtocol)
+
+  func setFlashMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws
+
+  func setExposureMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws
+
+  func applyExposureMode() throws
+
+  func setFocusMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws
+
+  func applyFocusMode() throws
+
+  func applyFocusMode(_ mode: FLTFocusMode, on device: CaptureDevice) throws
+
+  func pausePreview(with result: ThreadSafeFlutterResultProtocol)
+
+  func resumePreview(with result: ThreadSafeFlutterResultProtocol)
+
+  func getCGPointForCoordsWithOrientation(_ orientation: UIDeviceOrientation, x: Double, y: Double) -> CGPoint
+
+  func setExposurePoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double, deviceOrientationProvider: DeviceOrientationProvider) throws
+
+  func setFocusPoint(with result: ThreadSafeFlutterResultProtocol, x: Double, y: Double, deviceOrientationProvider: DeviceOrientationProvider) throws
+
+  func setExposureOffset(with result: ThreadSafeFlutterResultProtocol, offset: Double) throws
+
+  func startImageStream(with messenger: FlutterBinaryMessenger)
+
+  func startImageStream(with messenger: FlutterBinaryMessenger, imageStreamHandler: ImageStreamHandler)
+
+  func stopImageStream()
+
+
+  func receivedImageStreamData()
+
+  func getMaxZoomLevel(with result: ThreadSafeFlutterResultProtocol)
+
+  func getMinZoomLevel(with result: ThreadSafeFlutterResultProtocol)
+
+  func setZoomLevel(_ zoom: CGFloat, result: ThreadSafeFlutterResultProtocol) throws
+
+  func getMaxAvailableZoomFactor() -> CGFloat
+
+  func getMinAvailableZoomFactor() -> CGFloat
+
+
+}
+
+public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, FLTCamProtocol {
 
   @objc
   public let captureVideoOutput: AVCaptureVideoDataOutput

@@ -26,8 +26,8 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   private let deviceEventMethodChannel: ThreadSafeMethodChannel
 
-  @objc
-  public var camera: FLTCam? = nil
+
+  var camera: FLTCamProtocol? = nil
 
   @objc
   public init(
@@ -61,7 +61,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   @objc
   public func orientationChanged(_ notification: NSNotification) {
-    let device = notification.object as! UIDevice
+    let device = notification.object as! DeviceOrientationProvider
     let orientation = device.orientation
 
     if orientation == .faceUp || orientation == .faceDown {
@@ -201,7 +201,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         let x = reset ? 0.5 : (argsMap?["x"] as? NSNumber)?.doubleValue ?? 0
         let y = reset ? 0.5 : (argsMap?["y"] as? NSNumber)?.doubleValue ?? 0
 
-        try? camera?.setExposurePoint(with: result, x: x, y: y)
+        try? camera?.setExposurePoint(with: result, x: x, y: y, deviceOrientationProvider: UIDevice.current)
 
       case "getMinExposureOffset":
         guard let camera = camera else { return }
@@ -228,7 +228,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         let x = reset ? 0.5 : (argsMap?["x"] as? NSNumber)?.doubleValue ?? 0
         let y = reset ? 0.5 : (argsMap?["y"] as? NSNumber)?.doubleValue ?? 0
 
-        try? camera?.setFocusPoint(with: result, x: x, y: y)
+        try? camera?.setFocusPoint(with: result, x: x, y: y, deviceOrientationProvider: UIDevice.current)
       case "pausePreview":
         camera?.pausePreview(with: result)
       case "resumePreview":
