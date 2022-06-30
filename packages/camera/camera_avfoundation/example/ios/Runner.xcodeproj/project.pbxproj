@@ -32,8 +32,8 @@
 		E022B467286AAE7B007AA9CB /* CameraFocusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B466286AAE7B007AA9CB /* CameraFocusTests.swift */; };
 		E022B469286CD465007AA9CB /* CameraMethodChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B468286CD465007AA9CB /* CameraMethodChannelTests.swift */; };
 		E022B46B286CD793007AA9CB /* CameraOrientationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B46A286CD793007AA9CB /* CameraOrientationTests.swift */; };
+		E022B495286D2268007AA9CB /* CameraCaptureSessionQueueRaceConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E022B494286D2268007AA9CB /* CameraCaptureSessionQueueRaceConditionTests.swift */; };
 		E026E355285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E026E354285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift */; };
-		E032F250279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */; };
 		E0F95E3D27A32AB900699390 /* CameraPropertiesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */; };
 /* End PBXBuildFile section */
 
@@ -98,8 +98,8 @@
 		E022B466286AAE7B007AA9CB /* CameraFocusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFocusTests.swift; sourceTree = "<group>"; };
 		E022B468286CD465007AA9CB /* CameraMethodChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraMethodChannelTests.swift; sourceTree = "<group>"; };
 		E022B46A286CD793007AA9CB /* CameraOrientationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOrientationTests.swift; sourceTree = "<group>"; };
+		E022B494286D2268007AA9CB /* CameraCaptureSessionQueueRaceConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureSessionQueueRaceConditionTests.swift; sourceTree = "<group>"; };
 		E026E354285EA0ED00C5AAC4 /* ThreadSafeTextureRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeTextureRegistryTests.swift; sourceTree = "<group>"; };
-		E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraCaptureSessionQueueRaceConditionTests.m; sourceTree = "<group>"; };
 		E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraPropertiesTests.m; sourceTree = "<group>"; };
 		EC9E84507C078ABE9C8DE9BA /* libPods-Runner.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Runner.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -143,7 +143,7 @@
 				E01EE4A72799F3A5008C1950 /* QueueUtilsTests.m */,
 				E022B444286A3CA2007AA9CB /* CameraTestUtils.swift */,
 				E022B42D28600C14007AA9CB /* CameraPreviewPauseTests.swift */,
-				E032F24F279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m */,
+				E022B494286D2268007AA9CB /* CameraCaptureSessionQueueRaceConditionTests.swift */,
 				E0F95E3C27A32AB900699390 /* CameraPropertiesTests.m */,
 				788A065927B0E02900533D74 /* StreamingTest.m */,
 				43ED1536282570DE00EB00DE /* AvailableCamerasTest.m */,
@@ -421,7 +421,7 @@
 				E022B469286CD465007AA9CB /* CameraMethodChannelTests.swift in Sources */,
 				43ED1537282570DE00EB00DE /* AvailableCamerasTest.m in Sources */,
 				E022B43228606B10007AA9CB /* CameraPermissionUtilsTests.swift in Sources */,
-				E032F250279F5E94009E9028 /* CameraCaptureSessionQueueRaceConditionTests.m in Sources */,
+				E022B495286D2268007AA9CB /* CameraCaptureSessionQueueRaceConditionTests.swift in Sources */,
 				E022B42C28600879007AA9CB /* ThreadSafeFlutterResultTests.swift in Sources */,
 				788A065A27B0E02900533D74 /* StreamingTest.m in Sources */,
 				E022B42828600311007AA9CB /* ThreadSafeMethodChannelTests.swift in Sources */,
