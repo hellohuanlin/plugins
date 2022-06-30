@@ -600,7 +600,6 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
   }
 
-
   public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
 
     if output == captureVideoOutput {
