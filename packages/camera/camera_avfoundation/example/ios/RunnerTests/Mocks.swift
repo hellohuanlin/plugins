@@ -32,7 +32,7 @@ final class MockFLTCam: NSObject, FLTCamProtocol {
 
   var onFrameAvailable: (() -> Void)? = nil
 
-  var methodChannel: ThreadSafeMethodChannel! = nil
+  var methodChannel: MethodChannel! = MockMethodChannel()
 
   var resolutionPreset: FLTResolutionPreset = .high
 
@@ -242,6 +242,9 @@ final class MockCaptureConnection: CaptureConnection {
   }
 }
 
+final class MockCaptureDeviceFormat: CaptureDeviceFormat {
+  var highResolutionStillImageDimensions: CMVideoDimensions = CMVideoDimensions(width: 0, height: 0)
+}
 final class MockCaptureDevice: CaptureDevice {
 
   static var deviceStub: ((String) -> CaptureDevice?)? = nil
@@ -263,7 +266,7 @@ final class MockCaptureDevice: CaptureDevice {
 
   var position: AVCaptureDevice.Position = .front
 
-  var activeFormat: AVCaptureDevice.Format = AVCaptureDevice(uniqueID: "")!.activeFormat
+  var activeCaptureFormat: CaptureDeviceFormat = MockCaptureDeviceFormat()
 
   var lensAperture: Float = 0
 
@@ -511,6 +514,13 @@ final class MockEventChannel: EventChannel {
 }
 
 final class MockMethodChannel: MethodChannel {
+
+  static var mockMethodChannelStub: ((String, FlutterBinaryMessenger) -> MethodChannel)? = nil
+
+  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> MethodChannel {
+    return mockMethodChannelStub!(name, binaryMessenger)
+  }
+
 
   var invokeMethodStub: ((String, Any?) -> Void)? = nil
 

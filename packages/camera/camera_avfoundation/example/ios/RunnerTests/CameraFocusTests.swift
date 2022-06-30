@@ -54,7 +54,7 @@ final class CameraFocusTests: XCTestCase {
     MockCaptureDevice.deviceStub = { _ in mockDevice }
 
     mockDevice.isFocusPointOfInterestSupported = true
-    let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"))
+    let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"), captureDeviceType: MockCaptureDevice.self)
     let mockOrientationProvider = MockDeviceOrientationProvider()
     mockOrientationProvider.orientation = .landscapeLeft
     try? cam.setFocusPoint(with: MockThreadSafeFlutterResult(), x: 1, y: 1, deviceOrientationProvider: mockOrientationProvider)

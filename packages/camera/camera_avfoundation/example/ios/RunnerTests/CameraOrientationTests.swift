@@ -16,24 +16,25 @@ final class CameraOrientationTests: XCTestCase {
 
   func testOrientationNotifications() {
 
-
     let orientationExpectation = expectation(description: "portrait")
-
-    let mockMessenger = MockBinaryMessenger()
-    let camera = SwiftCameraPlugin(registry: MockTextureRegistry(), messenger: mockMessenger)
-
-    mockMessenger.sendOnChannelStub = { _, data in
-      if let data = data {
-        let codec = FlutterStandardMethodCodec()
-        let methodCall = codec.decodeMethodCall(data)
-        XCTAssertEqual(methodCall.method, "orientation_changed")
-        XCTAssertEqual(methodCall.arguments as? [String:String], ["orientation": "portrait"])
-        orientationExpectation.fulfill()
-      }
+    let mockMethodChannel = MockMethodChannel()
+    mockMethodChannel.invokeMethodStub = { method, arguments in
+      XCTAssertEqual(method, "orientation_changed")
+      XCTAssertEqual(arguments as? [String: String], ["orientation": "portraitUp"])
+      orientationExpectation.fulfill()
     }
+    MockMethodChannel.mockMethodChannelStub = { _, _ in
+      return mockMethodChannel
+    }
+    let mockMessenger = MockBinaryMessenger()
+    let camera = CameraTestUtils.createCameraPlugin(messenger: mockMessenger, methodChannelType: MockMethodChannel.self)
 
     let notification = createMockNotification(for: .portrait)
     camera.orientationChanged(notification as NSNotification)
+
+    waitForExpectations(timeout: 1)
+    // TODO: Have to reset it. We should not use static mocks
+    MockMethodChannel.mockMethodChannelStub = nil
   }
 
   func createMockNotification(for orientation: UIDeviceOrientation) -> Notification {
@@ -50,8 +51,7 @@ final class CameraOrientationTests: XCTestCase {
     SwiftQueueUtils.setSpecific(.captureSession, for: captureSessionQueue)
 
     let cam = MockFLTCam()
-    let camera = SwiftCameraPlugin(registry: MockTextureRegistry(), messenger: MockBinaryMessenger())
-
+    let camera = CameraTestUtils.createCameraPlugin()
     camera.camera = cam
     cam.setDeviceOrientationStub = { _ in
       if SwiftQueueUtils.isOnQueue(specific: .captureSession) {

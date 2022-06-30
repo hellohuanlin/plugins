@@ -38,31 +38,44 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   private let textureRegistry: ThreadSafeTextureRegistry
   private let messenger: FlutterBinaryMessenger
-
+  private let captureSession: CaptureSession
   private let captureSessionQueue: DispatchQueue
 
-  private let deviceEventMethodChannel: ThreadSafeMethodChannel
+  private let deviceEventMethodChannel: MethodChannel
 
 
   var camera: FLTCamProtocol? = nil
   private let discoverySessionType: DiscoverySession.Type
+  private let captureDeviceType: CaptureDevice.Type
+  private let captureDeviceInputType: CaptureDeviceInput.Type
+  private let captureConnectionType: CaptureConnection.Type
+  private let methodChannelType: MethodChannel.Type
 
   init(
     registry: FlutterTextureRegistry,
     messenger: FlutterBinaryMessenger,
-    discoverySessionType: DiscoverySession.Type = AVCaptureDevice.DiscoverySession.self)
+    captureSession: CaptureSession = AVCaptureSession(),
+    discoverySessionType: DiscoverySession.Type = AVCaptureDevice.DiscoverySession.self,
+    captureDeviceType: CaptureDevice.Type = AVCaptureDevice.self,
+    captureDeviceInputType: CaptureDeviceInput.Type = AVCaptureDeviceInput.self,
+    captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self,
+    methodChannelType: MethodChannel.Type = ThreadSafeMethodChannel.self)
   {
     self.textureRegistry = ThreadSafeTextureRegistry(registry: registry)
     self.messenger = messenger
+    self.captureSession = captureSession
     self.discoverySessionType = discoverySessionType
+    self.captureDeviceType = captureDeviceType
+    self.captureDeviceInputType = captureDeviceInputType
+    self.captureConnectionType = captureConnectionType
+    self.methodChannelType = methodChannelType
+
     captureSessionQueue = DispatchQueue(label: "io.flutter.camera.captureSessionQueue")
 
 
     SwiftQueueUtils.setSpecific(.captureSession, for: captureSessionQueue)
 
-    let methodChannel = FlutterMethodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
-
-    deviceEventMethodChannel = ThreadSafeMethodChannel(channel: methodChannel)
+    deviceEventMethodChannel = methodChannelType.methodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
 
     super.init()
 
@@ -96,7 +109,9 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
   @objc
   private func sendDeviceOrientation(_ orientation: UIDeviceOrientation) {
-    deviceEventMethodChannel.invokeMethod("orientation_changed", arguments: ["orientation": FLTGetStringForUIDeviceOrientation(orientation)])
+    let orientation = FLTOrientation(orientation: orientation)
+    
+    deviceEventMethodChannel.invokeMethod("orientation_changed", arguments: ["orientation": orientation.rawValue])
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -156,7 +171,11 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
       case "initialize":
         guard let camera = camera else { return }
         if let videoFormatValue = argsMap?["imageFormatGroup"] as? String {
-          camera.videoFormat = FLTGetVideoFormatFromString(videoFormatValue)
+          guard let videoFormat = FLTVideoFormat(rawValue: videoFormatValue)?.videoFormat else {
+            // TODO: handle error
+            return
+         }
+         camera.videoFormat = videoFormat
         }
 
         camera.onFrameAvailable = { [weak self] in
@@ -164,15 +183,14 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
           strongSelf.textureRegistry.textureFrameAvailable(cameraId)
         }
 
-        let methodChannel = FlutterMethodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
-        let threadSafeMethodChannel = ThreadSafeMethodChannel(channel: methodChannel)
+        let methodChannel = methodChannelType.methodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
 
-        camera.methodChannel = threadSafeMethodChannel
-        threadSafeMethodChannel.invokeMethod("initialized", arguments: [
+        camera.methodChannel = methodChannel
+        methodChannel.invokeMethod("initialized", arguments: [
           "previewWidth": camera.previewSize.width,
           "previewHeight": camera.previewSize.height,
-          "exposureMode": FLTGetStringForFLTExposureMode(camera.exposureMode),
-          "focusMode": FLTGetStringForFLTFocusMode(camera.focusMode),
+          "exposureMode": camera.exposureMode.rawValue,
+          "focusMode": camera.focusMode.rawValue,
           "exposurePointSupported": NSNumber(booleanLiteral: camera.captureDevice.isExposurePointOfInterestSupported),
           "focusPointSupported": NSNumber(booleanLiteral: camera.captureDevice.isFocusPointOfInterestSupported),
         ])
@@ -294,14 +312,17 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     let resolutionPreset = argMap["resolutionPreset"] as? String ?? ""
 
     captureSessionQueue.async {
-
       do {
         if let cam = try FLTCam(
           cameraName: cameraName,
           resolutionPreset: resolutionPreset,
           enableAudio: enableAudio,
           orientation: UIDevice.current.orientation,
-          captureSessionQueue: self.captureSessionQueue)
+          captureSession: self.captureSession,
+          captureSessionQueue: self.captureSessionQueue,
+          captureDeviceType: self.captureDeviceType,
+          captureDeviceInputType: self.captureDeviceInputType,
+          captureConnectionType: self.captureConnectionType)
         {
           self.camera?.close()
           self.camera = cam

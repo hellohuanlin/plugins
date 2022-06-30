@@ -15,7 +15,7 @@ import Flutter
 final class CameraMethodChannelTests: XCTestCase {
 
   func testCreate_ShouldCallResultOnMainThread() {
-    let camera = SwiftCameraPlugin(registry: MockTextureRegistry(), messenger: MockBinaryMessenger())
+    let camera = CameraTestUtils.createCameraPlugin()
 
     let expectation = expectation(description: "Result finished")
 
@@ -40,7 +40,7 @@ final class CameraMethodChannelTests: XCTestCase {
 
     let dictionaryResult = receivedResult as? NSDictionary
     XCTAssertNotNil(dictionaryResult)
-    XCTAssert(dictionaryResult?.allKeys.contains { $0 == "cameraId" } ?? false)
+    XCTAssert(dictionaryResult?.allKeys.contains { ($0 as? String) == "cameraId" } ?? false)
   }
 
 

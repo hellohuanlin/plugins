@@ -14,10 +14,39 @@ import Flutter
 
 enum CameraTestUtils {
 
+  static func createCameraPlugin(
+    registry: FlutterTextureRegistry = MockTextureRegistry(),
+    messenger: FlutterBinaryMessenger = MockBinaryMessenger(),
+    captureSession: CaptureSession = MockCaptureSession(),
+    discoverySessionType: DiscoverySession.Type = MockDiscoverySession.self,
+    captureDeviceType: CaptureDevice.Type = MockCaptureDevice.self,
+    captureDeviceInputType: CaptureDeviceInput.Type = MockCaptureDeviceInput.self,
+    captureConnectionType: CaptureConnection.Type = MockCaptureConnection.self,
+    methodChannelType: MethodChannel.Type = MockMethodChannel.self
+  ) -> SwiftCameraPlugin {
+    if MockCaptureDevice.deviceStub == nil {
+      MockCaptureDevice.deviceStub = { _ in MockCaptureDevice() }
+    }
+    if MockMethodChannel.mockMethodChannelStub == nil {
+      MockMethodChannel.mockMethodChannelStub = { _, _ in
+        MockMethodChannel()
+      }
+    }
+    return SwiftCameraPlugin(
+      registry: registry,
+      messenger: messenger,
+      captureSession: captureSession,
+      discoverySessionType: discoverySessionType,
+      captureDeviceType: captureDeviceType,
+      captureDeviceInputType: captureDeviceInputType,
+      captureConnectionType: captureConnectionType,
+      methodChannelType: methodChannelType)
+  }
 
   static func createCam(
     on captureSessionQueue: DispatchQueue,
     captureSession: CaptureSession = MockCaptureSession(),
+    captureDeviceType: CaptureDevice.Type = MockCaptureDevice.self,
     capturePhotoOutput: CapturePhotoOutput = MockCapturePhotoOutput()) -> FLTCam
   {
     return try! FLTCam(
@@ -28,7 +57,7 @@ enum CameraTestUtils {
       captureSession: captureSession,
       captureSessionQueue: captureSessionQueue,
       capturePhotoOutput: capturePhotoOutput,
-      captureDeviceType: MockCaptureDevice.self,
+      captureDeviceType: captureDeviceType,
       captureDeviceInputType: MockCaptureDeviceInput.self,
       captureConnectionType: MockCaptureConnection.self)!
   }

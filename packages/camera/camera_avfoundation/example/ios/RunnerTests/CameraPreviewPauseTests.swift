@@ -7,27 +7,24 @@
 //
 
 import Foundation
+import AVFoundation
 import XCTest
 @testable import camera_avfoundation;
 
 final class CameraPreviewPauseTests: XCTestCase {
 
-  private func createCam() -> FLTCam {
-    return try! FLTCam(cameraName: "", resolutionPreset: "", enableAudio: true, orientation: .unknown, captureSession: AVCaptureSession(), captureSessionQueue: DispatchQueue(label: "test"))!
-  }
-
   func testPausePreviewWithResult_shouldPausePreview() {
     let mock = MockThreadSafeFlutterResult()
-    let camera = createCam()
-    camera.pausePreview(with: mock)
-    XCTAssertTrue(camera.isPreviewPaused)
+    let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"))
+    cam.pausePreview(with: mock)
+    XCTAssertTrue(cam.isPreviewPaused)
   }
 
   func testResumePreviewWithResult_shouldResumePreview() {
     let mock = MockThreadSafeFlutterResult()
-    let camera = createCam()
-    camera.resumePreview(with: mock)
-    XCTAssertFalse(camera.isPreviewPaused)
+    let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"))
+    cam.resumePreview(with: mock)
+    XCTAssertFalse(cam.isPreviewPaused)
   }
 
 }

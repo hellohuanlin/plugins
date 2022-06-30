@@ -152,13 +152,19 @@ extension AVCaptureSession: CaptureSession {
   }
 }
 
+public protocol CaptureDeviceFormat {
+  var highResolutionStillImageDimensions: CMVideoDimensions { get }
+}
+
+extension AVCaptureDevice.Format: CaptureDeviceFormat {}
+
 public protocol CaptureDevice: AnyObject {
   static func device(with uniqueID: String) -> CaptureDevice?
 
   var uniqueID: String { get }
   var hasFlash: Bool { get }
   var position: AVCaptureDevice.Position { get }
-  var activeFormat: AVCaptureDevice.Format { get }
+  var activeCaptureFormat: CaptureDeviceFormat { get }
   var lensAperture: Float { get }
   var exposureDuration: CMTime { get }
   var iso: Float { get }
@@ -189,6 +195,10 @@ public protocol CaptureDevice: AnyObject {
 }
 
 extension AVCaptureDevice: CaptureDevice {
+  public var activeCaptureFormat: CaptureDeviceFormat {
+    return activeFormat
+  }
+
   public static func device(with uniqueID: String) -> CaptureDevice? {
     return AVCaptureDevice(uniqueID: uniqueID)
   }
@@ -212,7 +222,7 @@ protocol FLTCamProtocol: FlutterTexture {
   var previewSize: CGSize { get }
   var isPreviewPaused: Bool { get }
   var onFrameAvailable: (() -> Void)? { get set }
-  var methodChannel: ThreadSafeMethodChannel! { get set }
+  var methodChannel: MethodChannel! { get set }
   var resolutionPreset: FLTResolutionPreset { get }
 
 
@@ -313,7 +323,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   var previewSize: CGSize
   private(set) var isPreviewPaused: Bool
   var onFrameAvailable: (() -> Void)?
-  var methodChannel: ThreadSafeMethodChannel!
+  var methodChannel: MethodChannel!
   let resolutionPreset: FLTResolutionPreset
   private(set) var exposureMode: FLTExposureMode
   private(set) var focusMode: FLTFocusMode
@@ -368,7 +378,11 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self) throws
   {
 
-    self.resolutionPreset = FLTGetFLTResolutionPresetForString(resolutionPreset)
+    if let resolutionPreset = FLTResolutionPreset(rawValue: resolutionPreset) {
+      self.resolutionPreset = resolutionPreset
+    } else {
+      throw NSError(domain: "ResolutionPreset unsupported", code: 1)
+    }
 
     self.enableAudio = enableAudio
     self.captureSessionQueue = captureSessionQueue
@@ -492,8 +506,10 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     if resolutionPreset == .max {
       settings.isHighResolutionPhotoEnabled = true
     }
-    let avFlashMode = FLTGetAVCaptureFlashModeForFLTFlashMode(flashMode)
-    settings.flashMode = avFlashMode
+
+    if let avFlashMode = flashMode.flashMode {
+      settings.flashMode = avFlashMode
+    }
 
     let path: String?
     do {
@@ -567,7 +583,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         previewSize = CGSize(width: 3840, height: 2160)
       } else if captureSession.canSetSessionPreset(.high) {
         captureSession.sessionPreset = .high
-        previewSize = CGSize(width: Int(captureDevice.activeFormat.highResolutionStillImageDimensions.width), height: Int(captureDevice.activeFormat.highResolutionStillImageDimensions.height))
+        previewSize = CGSize(width: Int(captureDevice.activeCaptureFormat.highResolutionStillImageDimensions.width), height: Int(captureDevice.activeCaptureFormat.highResolutionStillImageDimensions.height))
       }
     case .veryHigh:
       if captureSession.canSetSessionPreset(.hd1920x1080) {
@@ -996,8 +1012,10 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   }
 
   func lockCaptureOrientation(with result: ThreadSafeFlutterResultProtocol, orientation orientationStr: String) {
-    // TODO: try catch this
-    let orientation = FLTGetUIDeviceOrientationForString(orientationStr)
+    guard let orientation = FLTOrientation(rawValue: orientationStr)?.orientation else {
+      // TODO: handle error here
+      return
+    }
     if lockedCaptureOrientation != orientation {
       lockedCaptureOrientation = orientation
       updateOrientation()
@@ -1012,7 +1030,9 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   }
 
   func setFlashMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws {
-    let mode = FLTGetFLTFlashModeForString(modeStr)
+    guard let mode = FLTFlashMode(rawValue: modeStr) else {
+      throw NSError(domain: "FLTMode not supported", code: 1)
+    }
     if mode == .torch {
       if !captureDevice.hasTorch {
         result.sendError(code: "setFlashModeFailed", message: "Device does not support torch mode", details: nil)
@@ -1034,7 +1054,9 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         return
       }
 
-      let avFlashMode = FLTGetAVCaptureFlashModeForFLTFlashMode(mode)
+      guard let avFlashMode = mode.flashMode else {
+        throw NSError(domain: "Flash mode unsupported", code: 1)
+      }
       if !capturePhotoOutput.supportedFlashModes.contains(avFlashMode) {
         result.sendError(code: "setFlashModeFailed", message: "Device does not support this specific flash mode", details: nil)
         return
@@ -1052,7 +1074,9 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
   func setExposureMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws {
 
-    let mode = FLTGetFLTExposureModeForString(modeStr)
+    guard let mode = FLTExposureMode(rawValue: modeStr) else {
+      throw NSError(domain: "Exposure not supported", code: 1)
+    }
 
     exposureMode = mode
     try applyExposureMode()
@@ -1078,8 +1102,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   }
 
   func setFocusMode(with result: ThreadSafeFlutterResultProtocol, mode modeStr: String) throws {
-    let mode = FLTGetFLTFocusModeForString(modeStr)
-
+    guard let mode = FLTFocusMode(rawValue: modeStr) else { throw NSError(domain: "Focus not supported", code: 1) }
     focusMode = mode
     try applyFocusMode()
     result.sendSuccess()
@@ -1089,22 +1112,22 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     try applyFocusMode(focusMode, on: captureDevice)
   }
 
-  public func applyFocusMode(_ mode: FLTFocusMode, on device: CaptureDevice) throws {
-    try captureDevice.lockForConfiguration()
-    switch focusMode {
+  func applyFocusMode(_ mode: FLTFocusMode, on device: CaptureDevice) throws {
+    try device.lockForConfiguration()
+    switch mode {
     case .locked:
       // TODO: original implementation is wrong
-      captureDevice.focusMode = .locked
+      device.focusMode = .locked
     case .auto:
-      if captureDevice.isFocusModeSupported(.continuousAutoFocus) {
-        captureDevice.focusMode = .continuousAutoFocus
-      } else if captureDevice.isFocusModeSupported(.autoFocus) {
-        captureDevice.focusMode = .autoFocus
+      if device.isFocusModeSupported(.continuousAutoFocus) {
+        device.focusMode = .continuousAutoFocus
+      } else if device.isFocusModeSupported(.autoFocus) {
+        device.focusMode = .autoFocus
       }
     @unknown default:
       fatalError("this should not happen")
     }
-    captureDevice.unlockForConfiguration()
+    device.unlockForConfiguration()
   }
 
   func pausePreview(with result: ThreadSafeFlutterResultProtocol) {

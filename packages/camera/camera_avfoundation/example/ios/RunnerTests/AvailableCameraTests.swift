@@ -9,12 +9,14 @@
 import Foundation
 import Flutter
 import XCTest
+import AVFoundation
 @testable import camera_avfoundation;
 
 final class AvailableCameraTests: XCTestCase {
 
   func testAvailableCamerasShouldReturnAllCamerasOnMultiCameraIPhone() {
-    let camera = SwiftCameraPlugin(registry: MockTextureRegistry(), messenger: MockBinaryMessenger(), discoverySessionType: MockDiscoverySession.self)
+
+    let camera = CameraTestUtils.createCameraPlugin()
 
     let expectation = expectation(description: "Result finished")
 
@@ -48,9 +50,9 @@ final class AvailableCameraTests: XCTestCase {
 
     let call = FlutterMethodCall(methodName: "availableCameras", arguments: nil)
     let result = MockThreadSafeFlutterResult()
-    var dictionaryResult: NSDictionary?
+    var dictionaryResult: [[String: Any]]?
     result.sendSuccessWithDataStub = { data in
-      dictionaryResult = data as? NSDictionary
+      dictionaryResult = data as? [[String: Any]]
       expectation.fulfill()
     }
     camera.handleAsync(call, result: result)
@@ -60,5 +62,7 @@ final class AvailableCameraTests: XCTestCase {
     } else {
       XCTAssertEqual(dictionaryResult?.count, 3)
     }
+
+    waitForExpectations(timeout: 1)
   }
 }

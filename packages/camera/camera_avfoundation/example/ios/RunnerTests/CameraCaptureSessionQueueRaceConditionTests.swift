@@ -13,7 +13,7 @@ import XCTest
 
 final class CameraCaptureSessionQueueRaceConditionTests: XCTestCase {
   func testFixForCaptureSessionQueueNullPointerCrashDueToRaceCondition() {
-    let cam = SwiftCameraPlugin(registry: MockTextureRegistry(), messenger: MockBinaryMessenger())
+    let camera = CameraTestUtils.createCameraPlugin()
 
     MockPermissionService.authorizationStatusForMediaTypeStub = { _ in .authorized }
 
@@ -26,11 +26,11 @@ final class CameraCaptureSessionQueueRaceConditionTests: XCTestCase {
     // Mimic a dispose call followed by a create call, which can be triggered by slightly dragging the
     // home bar, causing the app to be inactive, and immediately regain active.
 
-    cam.handle(disposeCall) { _ in
+    camera.handle(disposeCall) { _ in
       disposeExpectation.fulfill()
     }
 
-    cam.handle(createCall) { _ in
+    camera.handle(createCall) { _ in
       createExpectation.fulfill()
     }
 
@@ -40,7 +40,7 @@ final class CameraCaptureSessionQueueRaceConditionTests: XCTestCase {
     // `captureSessionQueue` passed into `AVCaptureVideoDataOutput::setSampleBufferDelegate:queue:`
     // API will cause a crash.
     
-    XCTAssertNotNil(cam.test_captureSessionQueue, "captureSessionQueue must not be nil after create method. ")
+    XCTAssertNotNil(camera.test_captureSessionQueue, "captureSessionQueue must not be nil after create method. ")
 
 
 

@@ -21,6 +21,7 @@ final class ThreadSafeMethodChannelTests: XCTestCase {
         expectation.fulfill()
       }
     }
+
     let threadSafeMethodChannel = ThreadSafeMethodChannel(channel: mock)
     threadSafeMethodChannel.invokeMethod("", arguments: nil)
     waitForExpectations(timeout: 1)
