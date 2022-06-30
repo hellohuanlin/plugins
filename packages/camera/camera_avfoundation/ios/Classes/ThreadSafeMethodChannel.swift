@@ -15,18 +15,24 @@ public protocol MethodChannel {
 extension FlutterMethodChannel: MethodChannel {}
 
 public protocol ThreadSafeMethodChannelProtocol {
-  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol
   func invokeMethod(_ method: String, arguments: Any?)
 }
 
-extension ThreadSafeMethodChannel: ThreadSafeMethodChannelProtocol {
-  public static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol {
-    let channel = FlutterMethodChannel(name: name, binaryMessenger: binaryMessenger)
-    return ThreadSafeMethodChannel(channel: channel)
+public protocol ThreadSafeMethodChannelFactoryProtocol {
+  func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol
+}
+
+extension ThreadSafeMethodChannel {
+  public final class Factory: ThreadSafeMethodChannelFactoryProtocol {
+    public func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol {
+      let channel = FlutterMethodChannel(name: name, binaryMessenger: binaryMessenger)
+      return ThreadSafeMethodChannel(channel: channel)
+    }
   }
 }
 
-public final class ThreadSafeMethodChannel: NSObject {
+public final class ThreadSafeMethodChannel: NSObject, ThreadSafeMethodChannelProtocol {
+
   private let channel: MethodChannel
 
   public init(channel: MethodChannel) {

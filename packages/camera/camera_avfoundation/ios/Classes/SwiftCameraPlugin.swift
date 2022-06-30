@@ -49,7 +49,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   private let captureDeviceType: CaptureDevice.Type
   private let captureDeviceInputType: CaptureDeviceInput.Type
   private let captureConnectionType: CaptureConnection.Type
-  private let threadSafeMethodChannelType: ThreadSafeMethodChannelProtocol.Type
+  private let threadSafeMethodChannelFactory: ThreadSafeMethodChannelFactoryProtocol
 
   init(
     registry: FlutterTextureRegistry,
@@ -59,7 +59,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     captureDeviceType: CaptureDevice.Type = AVCaptureDevice.self,
     captureDeviceInputType: CaptureDeviceInput.Type = AVCaptureDeviceInput.self,
     captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self,
-    threadSafeMethodChannelType: ThreadSafeMethodChannelProtocol.Type = ThreadSafeMethodChannel.self)
+    threadSafeMethodChannelFactory: ThreadSafeMethodChannelFactoryProtocol = ThreadSafeMethodChannel.Factory())
   {
     self.textureRegistry = ThreadSafeTextureRegistry(registry: registry)
     self.messenger = messenger
@@ -68,14 +68,14 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     self.captureDeviceType = captureDeviceType
     self.captureDeviceInputType = captureDeviceInputType
     self.captureConnectionType = captureConnectionType
-    self.threadSafeMethodChannelType = threadSafeMethodChannelType
+    self.threadSafeMethodChannelFactory = threadSafeMethodChannelFactory
 
     captureSessionQueue = DispatchQueue(label: "io.flutter.camera.captureSessionQueue")
 
 
     SwiftQueueUtils.setSpecific(.captureSession, for: captureSessionQueue)
 
-    deviceEventMethodChannel = threadSafeMethodChannelType.methodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
+    deviceEventMethodChannel = threadSafeMethodChannelFactory.methodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
 
     super.init()
 
@@ -183,7 +183,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
           strongSelf.textureRegistry.textureFrameAvailable(cameraId)
         }
 
-        let methodChannel = threadSafeMethodChannelType.methodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
+        let methodChannel = threadSafeMethodChannelFactory.methodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
 
         camera.methodChannel = methodChannel
         methodChannel.invokeMethod("initialized", arguments: [

@@ -514,18 +514,17 @@ final class MockEventChannel: EventChannel {
 
 }
 
-final class MockThreadSafeMethodChannel: ThreadSafeMethodChannelProtocol {
+final class MockThreadSafeMethodChannel: ThreadSafeMethodChannelProtocol, ThreadSafeMethodChannelFactoryProtocol {
 
-  static var methodChannelStub: ((String, FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol)? = nil
-  var invokeMethodStub: ((String, Any?) -> Void)? = nil
-
-  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol {
-    return methodChannelStub!(name, binaryMessenger)
+  func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol {
+    return self
   }
+
+  var invokeMethodStub: ((String, Any?) -> Void)? = nil
   func invokeMethod(_ method: String, arguments: Any?) {
     invokeMethodStub?(method, arguments)
   }
-
+  
 }
 
 final class MockMethodChannel: MethodChannel {

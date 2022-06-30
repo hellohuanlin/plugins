@@ -22,15 +22,10 @@ enum CameraTestUtils {
     captureDeviceType: CaptureDevice.Type = MockCaptureDevice.self,
     captureDeviceInputType: CaptureDeviceInput.Type = MockCaptureDeviceInput.self,
     captureConnectionType: CaptureConnection.Type = MockCaptureConnection.self,
-    threadSafeMethodChannelType: ThreadSafeMethodChannelProtocol.Type = MockThreadSafeMethodChannel.self
+    threadSafeMethodChannelFactory: ThreadSafeMethodChannelFactoryProtocol = MockThreadSafeMethodChannel()
   ) -> SwiftCameraPlugin {
     if MockCaptureDevice.deviceStub == nil {
       MockCaptureDevice.deviceStub = { _ in MockCaptureDevice() }
-    }
-    if MockThreadSafeMethodChannel.methodChannelStub == nil {
-      MockThreadSafeMethodChannel.methodChannelStub = { _, _ in
-        MockThreadSafeMethodChannel()
-      }
     }
     return SwiftCameraPlugin(
       registry: registry,
@@ -40,7 +35,7 @@ enum CameraTestUtils {
       captureDeviceType: captureDeviceType,
       captureDeviceInputType: captureDeviceInputType,
       captureConnectionType: captureConnectionType,
-      threadSafeMethodChannelType: threadSafeMethodChannelType)
+      threadSafeMethodChannelFactory: threadSafeMethodChannelFactory)
   }
 
   static func createCam(
