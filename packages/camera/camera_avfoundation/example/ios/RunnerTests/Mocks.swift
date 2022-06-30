@@ -22,6 +22,7 @@ final class MockDiscoverySession: DiscoverySession {
 }
 
 final class MockFLTCam: NSObject, FLTCamProtocol {
+
   var captureVideoOutput: AVCaptureVideoDataOutput = AVCaptureVideoDataOutput()
 
   var captureDevice: CaptureDevice = MockCaptureDevice()
@@ -32,7 +33,7 @@ final class MockFLTCam: NSObject, FLTCamProtocol {
 
   var onFrameAvailable: (() -> Void)? = nil
 
-  var methodChannel: MethodChannel! = MockMethodChannel()
+  var methodChannel: ThreadSafeMethodChannelProtocol! = MockThreadSafeMethodChannel()
 
   var resolutionPreset: FLTResolutionPreset = .high
 
@@ -513,13 +514,21 @@ final class MockEventChannel: EventChannel {
 
 }
 
-final class MockMethodChannel: MethodChannel {
+final class MockThreadSafeMethodChannel: ThreadSafeMethodChannelProtocol {
 
-  static var mockMethodChannelStub: ((String, FlutterBinaryMessenger) -> MethodChannel)? = nil
+  static var methodChannelStub: ((String, FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol)? = nil
+  var invokeMethodStub: ((String, Any?) -> Void)? = nil
 
-  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> MethodChannel {
-    return mockMethodChannelStub!(name, binaryMessenger)
+  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol {
+    return methodChannelStub!(name, binaryMessenger)
   }
+  func invokeMethod(_ method: String, arguments: Any?) {
+    invokeMethodStub?(method, arguments)
+  }
+
+}
+
+final class MockMethodChannel: MethodChannel {
 
 
   var invokeMethodStub: ((String, Any?) -> Void)? = nil

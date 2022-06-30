@@ -9,23 +9,22 @@ import Foundation
 import Flutter
 
 public protocol MethodChannel {
-  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> MethodChannel
   func invokeMethod(_ method: String, arguments: Any?)
 }
 
-extension ThreadSafeMethodChannel: MethodChannel {
-  public static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> MethodChannel {
+extension FlutterMethodChannel: MethodChannel {}
+
+public protocol ThreadSafeMethodChannelProtocol {
+  static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol
+  func invokeMethod(_ method: String, arguments: Any?)
+}
+
+extension ThreadSafeMethodChannel: ThreadSafeMethodChannelProtocol {
+  public static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> ThreadSafeMethodChannelProtocol {
     let channel = FlutterMethodChannel(name: name, binaryMessenger: binaryMessenger)
     return ThreadSafeMethodChannel(channel: channel)
   }
 }
-
-extension FlutterMethodChannel: MethodChannel {
-  public static func methodChannel(name: String, binaryMessenger: FlutterBinaryMessenger) -> MethodChannel {
-    return FlutterMethodChannel(name: name, binaryMessenger: binaryMessenger)
-  }
-}
-
 
 public final class ThreadSafeMethodChannel: NSObject {
   private let channel: MethodChannel

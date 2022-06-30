@@ -41,7 +41,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   private let captureSession: CaptureSession
   private let captureSessionQueue: DispatchQueue
 
-  private let deviceEventMethodChannel: MethodChannel
+  private let deviceEventMethodChannel: ThreadSafeMethodChannelProtocol
 
 
   var camera: FLTCamProtocol? = nil
@@ -49,7 +49,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   private let captureDeviceType: CaptureDevice.Type
   private let captureDeviceInputType: CaptureDeviceInput.Type
   private let captureConnectionType: CaptureConnection.Type
-  private let methodChannelType: MethodChannel.Type
+  private let threadSafeMethodChannelType: ThreadSafeMethodChannelProtocol.Type
 
   init(
     registry: FlutterTextureRegistry,
@@ -59,7 +59,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     captureDeviceType: CaptureDevice.Type = AVCaptureDevice.self,
     captureDeviceInputType: CaptureDeviceInput.Type = AVCaptureDeviceInput.self,
     captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self,
-    methodChannelType: MethodChannel.Type = ThreadSafeMethodChannel.self)
+    threadSafeMethodChannelType: ThreadSafeMethodChannelProtocol.Type = ThreadSafeMethodChannel.self)
   {
     self.textureRegistry = ThreadSafeTextureRegistry(registry: registry)
     self.messenger = messenger
@@ -68,14 +68,14 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     self.captureDeviceType = captureDeviceType
     self.captureDeviceInputType = captureDeviceInputType
     self.captureConnectionType = captureConnectionType
-    self.methodChannelType = methodChannelType
+    self.threadSafeMethodChannelType = threadSafeMethodChannelType
 
     captureSessionQueue = DispatchQueue(label: "io.flutter.camera.captureSessionQueue")
 
 
     SwiftQueueUtils.setSpecific(.captureSession, for: captureSessionQueue)
 
-    deviceEventMethodChannel = methodChannelType.methodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
+    deviceEventMethodChannel = threadSafeMethodChannelType.methodChannel(name: "flutter.io/cameraPlugin/device", binaryMessenger: messenger)
 
     super.init()
 
@@ -183,7 +183,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
           strongSelf.textureRegistry.textureFrameAvailable(cameraId)
         }
 
-        let methodChannel = methodChannelType.methodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
+        let methodChannel = threadSafeMethodChannelType.methodChannel(name: String(format: "flutter.io/cameraPlugin/camera%lu", cameraId), binaryMessenger: messenger)
 
         camera.methodChannel = methodChannel
         methodChannel.invokeMethod("initialized", arguments: [

@@ -222,7 +222,7 @@ protocol FLTCamProtocol: FlutterTexture {
   var previewSize: CGSize { get }
   var isPreviewPaused: Bool { get }
   var onFrameAvailable: (() -> Void)? { get set }
-  var methodChannel: MethodChannel! { get set }
+  var methodChannel: ThreadSafeMethodChannelProtocol! { get set }
   var resolutionPreset: FLTResolutionPreset { get }
 
 
@@ -323,7 +323,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   var previewSize: CGSize
   private(set) var isPreviewPaused: Bool
   var onFrameAvailable: (() -> Void)?
-  var methodChannel: MethodChannel!
+  var methodChannel: ThreadSafeMethodChannelProtocol!
   let resolutionPreset: FLTResolutionPreset
   private(set) var exposureMode: FLTExposureMode
   private(set) var focusMode: FLTFocusMode

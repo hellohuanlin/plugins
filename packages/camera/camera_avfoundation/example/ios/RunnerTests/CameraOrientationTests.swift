@@ -17,24 +17,26 @@ final class CameraOrientationTests: XCTestCase {
   func testOrientationNotifications() {
 
     let orientationExpectation = expectation(description: "portrait")
-    let mockMethodChannel = MockMethodChannel()
+    let mockMethodChannel = MockThreadSafeMethodChannel()
     mockMethodChannel.invokeMethodStub = { method, arguments in
       XCTAssertEqual(method, "orientation_changed")
       XCTAssertEqual(arguments as? [String: String], ["orientation": "portraitUp"])
       orientationExpectation.fulfill()
     }
-    MockMethodChannel.mockMethodChannelStub = { _, _ in
+
+    MockThreadSafeMethodChannel.methodChannelStub = { _, _ in
       return mockMethodChannel
     }
+
     let mockMessenger = MockBinaryMessenger()
-    let camera = CameraTestUtils.createCameraPlugin(messenger: mockMessenger, methodChannelType: MockMethodChannel.self)
+    let camera = CameraTestUtils.createCameraPlugin(messenger: mockMessenger, threadSafeMethodChannelType: MockThreadSafeMethodChannel.self)
 
     let notification = createMockNotification(for: .portrait)
     camera.orientationChanged(notification as NSNotification)
 
     waitForExpectations(timeout: 1)
     // TODO: Have to reset it. We should not use static mocks
-    MockMethodChannel.mockMethodChannelStub = nil
+    MockThreadSafeMethodChannel.methodChannelStub = nil
   }
 
   func createMockNotification(for orientation: UIDeviceOrientation) -> Notification {
