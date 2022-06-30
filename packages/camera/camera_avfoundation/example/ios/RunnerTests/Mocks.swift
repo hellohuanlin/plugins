@@ -12,6 +12,14 @@ import Flutter
 import XCTest
 import AVFoundation
 
+final class MockDiscoverySession: DiscoverySession {
+  static var discoverySessionStub: (([AVCaptureDevice.DeviceType], AVMediaType, AVCaptureDevice.Position) -> DiscoverySession)? = nil
+  var captureDevices: [CaptureDevice] = []
+
+  static func discoverySession(deviceTypes: [AVCaptureDevice.DeviceType], mediaType: AVMediaType, position: AVCaptureDevice.Position) -> DiscoverySession {
+    return discoverySessionStub!(deviceTypes, mediaType, position)
+  }
+}
 
 final class MockFLTCam: NSObject, FLTCamProtocol {
   var captureVideoOutput: AVCaptureVideoDataOutput = AVCaptureVideoDataOutput()
@@ -206,11 +214,11 @@ final class MockFLTCam: NSObject, FLTCamProtocol {
   }
 
   func getMaxAvailableZoomFactor() -> CGFloat {
-
+    return 0
   }
 
   func getMinAvailableZoomFactor() -> CGFloat {
-
+    return 0
   }
 
 
@@ -248,6 +256,8 @@ final class MockCaptureDevice: CaptureDevice {
   static func device(with uniqueID: String) -> CaptureDevice? {
     return deviceStub?(uniqueID)
   }
+
+  var uniqueID: String = ""
 
   var hasFlash: Bool = false
 

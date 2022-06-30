@@ -155,6 +155,7 @@ extension AVCaptureSession: CaptureSession {
 public protocol CaptureDevice: AnyObject {
   static func device(with uniqueID: String) -> CaptureDevice?
 
+  var uniqueID: String { get }
   var hasFlash: Bool { get }
   var position: AVCaptureDevice.Position { get }
   var activeFormat: AVCaptureDevice.Format { get }

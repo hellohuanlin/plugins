@@ -9,6 +9,23 @@ import Foundation
 import Flutter
 import AVFoundation
 
+protocol DiscoverySession {
+  static func discoverySession(deviceTypes: [AVCaptureDevice.DeviceType], mediaType: AVMediaType, position: AVCaptureDevice.Position) -> DiscoverySession
+
+  var captureDevices: [CaptureDevice] { get }
+}
+
+extension AVCaptureDevice.DiscoverySession: DiscoverySession {
+  static func discoverySession(deviceTypes: [AVCaptureDevice.DeviceType], mediaType: AVMediaType, position: AVCaptureDevice.Position) -> DiscoverySession {
+    return AVCaptureDevice.DiscoverySession(deviceTypes: deviceTypes, mediaType: mediaType, position: position)
+  }
+
+  var captureDevices: [CaptureDevice] {
+    return devices
+  }
+}
+
+
 public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -28,14 +45,16 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
 
 
   var camera: FLTCamProtocol? = nil
+  private let discoverySessionType: DiscoverySession.Type
 
-  @objc
-  public init(
+  init(
     registry: FlutterTextureRegistry,
-    messenger: FlutterBinaryMessenger)
+    messenger: FlutterBinaryMessenger,
+    discoverySessionType: DiscoverySession.Type = AVCaptureDevice.DiscoverySession.self)
   {
     self.textureRegistry = ThreadSafeTextureRegistry(registry: registry)
     self.messenger = messenger
+    self.discoverySessionType = discoverySessionType
     captureSessionQueue = DispatchQueue(label: "io.flutter.camera.captureSessionQueue")
 
 
@@ -98,9 +117,9 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
         discoveryDevices += [.builtInUltraWideCamera]
       }
 
-      let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: discoveryDevices, mediaType: .video, position: .unspecified)
+      let discoverySession = discoverySessionType.discoverySession(deviceTypes: discoveryDevices, mediaType: .video, position: .unspecified)
 
-      let devices = discoverySession.devices
+      let devices = discoverySession.captureDevices
 
       let reply: [[String:Any?]] = devices.map { device in
         let lensFacing: String?
