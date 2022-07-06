@@ -44,9 +44,9 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
   private let deviceEventMethodChannel: ThreadSafeMethodChannelProtocol
 
 
+  private let captureDeviceFactory: CaptureDeviceFactory
   var camera: FLTCamProtocol? = nil
   private let discoverySessionType: DiscoverySession.Type
-  private let captureDeviceType: CaptureDevice.Type
   private let captureDeviceInputType: CaptureDeviceInput.Type
   private let captureConnectionType: CaptureConnection.Type
   private let threadSafeMethodChannelFactory: ThreadSafeMethodChannelFactoryProtocol
@@ -56,7 +56,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     messenger: FlutterBinaryMessenger,
     captureSession: CaptureSession = AVCaptureSession(),
     discoverySessionType: DiscoverySession.Type = AVCaptureDevice.DiscoverySession.self,
-    captureDeviceType: CaptureDevice.Type = AVCaptureDevice.self,
+    captureDeviceFactory: CaptureDeviceFactory = AVCaptureDevice.Factory(),
     captureDeviceInputType: CaptureDeviceInput.Type = AVCaptureDeviceInput.self,
     captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self,
     threadSafeMethodChannelFactory: ThreadSafeMethodChannelFactoryProtocol = ThreadSafeMethodChannel.Factory())
@@ -65,7 +65,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
     self.messenger = messenger
     self.captureSession = captureSession
     self.discoverySessionType = discoverySessionType
-    self.captureDeviceType = captureDeviceType
+    self.captureDeviceFactory = captureDeviceFactory
     self.captureDeviceInputType = captureDeviceInputType
     self.captureConnectionType = captureConnectionType
     self.threadSafeMethodChannelFactory = threadSafeMethodChannelFactory
@@ -320,7 +320,7 @@ public final class SwiftCameraPlugin: NSObject, FlutterPlugin {
           orientation: UIDevice.current.orientation,
           captureSession: self.captureSession,
           captureSessionQueue: self.captureSessionQueue,
-          captureDeviceType: self.captureDeviceType,
+          captureDeviceFactory: self.captureDeviceFactory,
           captureDeviceInputType: self.captureDeviceInputType,
           captureConnectionType: self.captureConnectionType)
         {

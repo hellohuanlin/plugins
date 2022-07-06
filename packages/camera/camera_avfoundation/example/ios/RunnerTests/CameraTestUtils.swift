@@ -19,20 +19,17 @@ enum CameraTestUtils {
     messenger: FlutterBinaryMessenger = MockBinaryMessenger(),
     captureSession: CaptureSession = MockCaptureSession(),
     discoverySessionType: DiscoverySession.Type = MockDiscoverySession.self,
-    captureDeviceType: CaptureDevice.Type = MockCaptureDevice.self,
+    captureDeviceFactory: CaptureDeviceFactory = MockCaptureDevice(uniqueID: "123"),
     captureDeviceInputType: CaptureDeviceInput.Type = MockCaptureDeviceInput.self,
     captureConnectionType: CaptureConnection.Type = MockCaptureConnection.self,
     threadSafeMethodChannelFactory: ThreadSafeMethodChannelFactoryProtocol = MockThreadSafeMethodChannel()
   ) -> SwiftCameraPlugin {
-    if MockCaptureDevice.deviceStub == nil {
-      MockCaptureDevice.deviceStub = { _ in MockCaptureDevice() }
-    }
     return SwiftCameraPlugin(
       registry: registry,
       messenger: messenger,
       captureSession: captureSession,
       discoverySessionType: discoverySessionType,
-      captureDeviceType: captureDeviceType,
+      captureDeviceFactory: captureDeviceFactory,
       captureDeviceInputType: captureDeviceInputType,
       captureConnectionType: captureConnectionType,
       threadSafeMethodChannelFactory: threadSafeMethodChannelFactory)
@@ -41,7 +38,7 @@ enum CameraTestUtils {
   static func createCam(
     on captureSessionQueue: DispatchQueue,
     captureSession: CaptureSession = MockCaptureSession(),
-    captureDeviceType: CaptureDevice.Type = MockCaptureDevice.self,
+    captureDeviceFactory: CaptureDeviceFactory = MockCaptureDevice(uniqueID: "123"),
     capturePhotoOutput: CapturePhotoOutput = MockCapturePhotoOutput()) -> FLTCam
   {
     return try! FLTCam(
@@ -52,7 +49,7 @@ enum CameraTestUtils {
       captureSession: captureSession,
       captureSessionQueue: captureSessionQueue,
       capturePhotoOutput: capturePhotoOutput,
-      captureDeviceType: captureDeviceType,
+      captureDeviceFactory: captureDeviceFactory,
       captureDeviceInputType: MockCaptureDeviceInput.self,
       captureConnectionType: MockCaptureConnection.self)!
   }

@@ -16,7 +16,7 @@ final class CameraFocusTests: XCTestCase {
 
   func testAutoFocusWithContinuousModeSupported_ShouldSetContinuousAutoFocus() {
 
-    let mockDevice = MockCaptureDevice()
+    let mockDevice = MockCaptureDevice(uniqueID: "test")
     mockDevice.isFocusModeSupportedStub = { mode in
       return mode == .continuousAutoFocus
     }
@@ -29,7 +29,7 @@ final class CameraFocusTests: XCTestCase {
 
   func testAutoFocusWithContinuousModeNotSupported_ShouldSetAutoFocus() {
 
-    let mockDevice = MockCaptureDevice()
+    let mockDevice = MockCaptureDevice(uniqueID: "test")
     mockDevice.isFocusModeSupportedStub = { mode in
       return mode == .autoFocus
     }
@@ -41,7 +41,7 @@ final class CameraFocusTests: XCTestCase {
   }
 
   func testAutoFocus_ShouldSetLocked() {
-    let mockDevice = MockCaptureDevice()
+    let mockDevice = MockCaptureDevice(uniqueID: "test")
     let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"))
 
     try? cam.applyFocusMode(.locked, on: mockDevice)
@@ -50,11 +50,10 @@ final class CameraFocusTests: XCTestCase {
 
   func testSetFocusPointWithResult_SetsFocusPointOfInterest() {
 
-    let mockDevice = MockCaptureDevice()
-    MockCaptureDevice.deviceStub = { _ in mockDevice }
-
+    let mockDevice = MockCaptureDevice(uniqueID: "123")
     mockDevice.isFocusPointOfInterestSupported = true
-    let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"), captureDeviceType: MockCaptureDevice.self)
+
+    let cam = CameraTestUtils.createCam(on: DispatchQueue(label: "test"), captureDeviceFactory: mockDevice)
     let mockOrientationProvider = MockDeviceOrientationProvider()
     mockOrientationProvider.orientation = .landscapeLeft
     try? cam.setFocusPoint(with: MockThreadSafeFlutterResult(), x: 1, y: 1, deviceOrientationProvider: mockOrientationProvider)

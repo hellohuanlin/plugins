@@ -159,8 +159,7 @@ public protocol CaptureDeviceFormat {
 extension AVCaptureDevice.Format: CaptureDeviceFormat {}
 
 public protocol CaptureDevice: AnyObject {
-  static func device(with uniqueID: String) -> CaptureDevice?
-
+  
   var uniqueID: String { get }
   var hasFlash: Bool { get }
   var position: AVCaptureDevice.Position { get }
@@ -194,7 +193,18 @@ public protocol CaptureDevice: AnyObject {
   func unlockForConfiguration()
 }
 
+public protocol CaptureDeviceFactory {
+  func captureDevice(uniqueID: String) -> CaptureDevice?
+}
+
 extension AVCaptureDevice: CaptureDevice {
+
+  public final class Factory: CaptureDeviceFactory {
+    public func captureDevice(uniqueID: String) -> CaptureDevice? {
+      return AVCaptureDevice(uniqueID: uniqueID)
+    }
+  }
+
   public var activeCaptureFormat: CaptureDeviceFormat {
     return activeFormat
   }
@@ -373,7 +383,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     captureSession: CaptureSession = AVCaptureSession(),
     captureSessionQueue: DispatchQueue,
     capturePhotoOutput: CapturePhotoOutput = AVCapturePhotoOutput(),
-    captureDeviceType: CaptureDevice.Type = AVCaptureDevice.self,
+    captureDeviceFactory: CaptureDeviceFactory = AVCaptureDevice.Factory(),
     captureDeviceInputType: CaptureDeviceInput.Type = AVCaptureDeviceInput.self,
     captureConnectionType: CaptureConnection.Type = AVCaptureConnection.self) throws
   {
@@ -389,7 +399,7 @@ public final class FLTCam: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     self.pixelBufferSynchronizationQueue = DispatchQueue(label: "io.flutter.camera.pixelBufferSynchronizationQueue")
     self.photoIOQueue = DispatchQueue(label: "io.flutter.camera.photoIOQueue")
     self.captureSession = captureSession
-    self.captureDevice = captureDeviceType.device(with: cameraName)!
+    self.captureDevice = captureDeviceFactory.captureDevice(uniqueID: cameraName)!
     self.flashMode = captureDevice.hasFlash ? .auto : .off
     self.exposureMode = .auto
     self.focusMode = .auto

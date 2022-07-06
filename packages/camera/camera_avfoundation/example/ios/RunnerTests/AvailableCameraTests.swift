@@ -20,16 +20,16 @@ final class AvailableCameraTests: XCTestCase {
 
     let expectation = expectation(description: "Result finished")
 
-    let wideAngleCamera = MockCaptureDevice()
+    let wideAngleCamera = MockCaptureDevice(uniqueID: "1")
     wideAngleCamera.position = .back
 
-    let frontFacingCamera = MockCaptureDevice()
+    let frontFacingCamera = MockCaptureDevice(uniqueID: "2")
     frontFacingCamera.position = .front
 
-    let ultraWideCamera = MockCaptureDevice()
+    let ultraWideCamera = MockCaptureDevice(uniqueID: "3")
     ultraWideCamera.position = .back
 
-    let telephotoCamera = MockCaptureDevice()
+    let telephotoCamera = MockCaptureDevice(uniqueID: "4")
     telephotoCamera.position = .back
 
     var devices = [wideAngleCamera, frontFacingCamera, telephotoCamera]

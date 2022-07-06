@@ -25,7 +25,7 @@ final class MockFLTCam: NSObject, FLTCamProtocol {
 
   var captureVideoOutput: AVCaptureVideoDataOutput = AVCaptureVideoDataOutput()
 
-  var captureDevice: CaptureDevice = MockCaptureDevice()
+  var captureDevice: CaptureDevice = MockCaptureDevice(uniqueID: "camera_123")
 
   var previewSize: CGSize = .zero
 
@@ -246,9 +246,18 @@ final class MockCaptureConnection: CaptureConnection {
 final class MockCaptureDeviceFormat: CaptureDeviceFormat {
   var highResolutionStillImageDimensions: CMVideoDimensions = CMVideoDimensions(width: 0, height: 0)
 }
-final class MockCaptureDevice: CaptureDevice {
 
-  static var deviceStub: ((String) -> CaptureDevice?)? = nil
+final class MockCaptureDevice: CaptureDevice, CaptureDeviceFactory {
+
+  func captureDevice(uniqueID: String) -> CaptureDevice? {
+    return self
+  }
+
+  init(uniqueID: String) {
+    self.uniqueID = uniqueID
+  }
+
+  var uniqueID: String
   var isExposureModeSupportedStub: ((AVCaptureDevice.ExposureMode) -> Bool)? = nil
 
   var isFocusModeSupportedStub: ((AVCaptureDevice.FocusMode) -> Bool)? = nil
@@ -256,12 +265,6 @@ final class MockCaptureDevice: CaptureDevice {
   var lockForConfigurationStub: (() throws -> Void)? = nil
   var unlockForConfigurationStub: (() -> Void)? = nil
 
-
-  static func device(with uniqueID: String) -> CaptureDevice? {
-    return deviceStub?(uniqueID)
-  }
-
-  var uniqueID: String = ""
 
   var hasFlash: Bool = false
 
@@ -524,7 +527,7 @@ final class MockThreadSafeMethodChannel: ThreadSafeMethodChannelProtocol, Thread
   func invokeMethod(_ method: String, arguments: Any?) {
     invokeMethodStub?(method, arguments)
   }
-  
+
 }
 
 final class MockMethodChannel: MethodChannel {
