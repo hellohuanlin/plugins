@@ -13,7 +13,7 @@ flutter:
     implements: camera
     platforms:
       ios:
-        pluginClass: CameraPlugin
+        pluginClass: SwiftCameraPlugin
 
 dependencies:
   camera_platform_interface: ^2.2.0
