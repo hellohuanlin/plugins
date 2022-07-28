@@ -18,20 +18,25 @@ public final class QuickActionsPlugin: NSObject, FlutterPlugin {
     registrar.addApplicationDelegate(instance)
   }
 
-  private let channel: FlutterMethodChannel
-  private var shortcutType: String? = nil
+  private let channel: MethodChannel
+  private let shortcutService: ShortcutItemsService
 
-  init(channel: FlutterMethodChannel) {
+  init(
+    channel: MethodChannel,
+    shortcutService: ShortcutItemsService = DefaultShortcutService())
+  {
     self.channel = channel
+    self.shortcutService = shortcutService
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "setShortcutItems":
-      setShortcutItems(call.arguments as? [[String:Any]] ?? [])
+      let items = call.arguments as? [[String:Any]] ?? []
+      shortcutService.setShortcutItems(items)
       result(nil)
     case "clearShortcutItems":
-      UIApplication.shared.shortcutItems = []
+      shortcutService.setShortcutItems([])
       result(nil)
     case "getLaunchAction":
       result(nil)
@@ -48,16 +53,16 @@ public final class QuickActionsPlugin: NSObject, FlutterPlugin {
   public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
     let shortcutItem = launchOptions[UIApplication.LaunchOptionsKey.shortcutItem]
     if let shortcutItem = shortcutItem as? UIApplicationShortcutItem {
-      self.shortcutType = shortcutItem.type
+      self.shortcutService.activeShortcutType = shortcutItem.type
       return false
     }
     return true
   }
 
   public func applicationDidBecomeActive(_ application: UIApplication) {
-    if let shortcutType = shortcutType {
+    if let shortcutType = shortcutService.activeShortcutType {
       handleShortcut(shortcutType)
-      self.shortcutType = nil
+      shortcutService.activeShortcutType = nil
     }
   }
 
@@ -65,27 +70,4 @@ public final class QuickActionsPlugin: NSObject, FlutterPlugin {
     channel.invokeMethod("launch", arguments: shortcut)
   }
 
-
-  private func setShortcutItems(_ items: [[String:Any]]) {
-    UIApplication.shared.shortcutItems = items.compactMap { deserializeShortcutItem(with:$0) }
-  }
-
-  private func deserializeShortcutItem(with serialized: [String: Any]) -> UIApplicationShortcutItem? {
-    // type and title are required.
-    guard
-      let type = serialized["type"] as? String,
-      let localizedTitle = serialized["localizedTitle"] as? String
-    else { return nil }
-
-    let icon = (serialized["icon"] as? String)
-      .map { UIApplicationShortcutIcon(templateImageName: $0) }
-
-    return UIApplicationShortcutItem(
-      type: type,
-      localizedTitle: localizedTitle,
-      localizedSubtitle: nil,
-      icon: icon,
-      userInfo: nil)
-  }
-  
 }
