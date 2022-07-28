@@ -9,18 +9,19 @@
 import XCTest
 @testable import quick_actions_ios
 
-final class DefaultShortcutServiceTests: XCTest {
+final class DefaultShortcutServiceTests: XCTestCase {
 
   private let testSerializedItem = [
     "type": "Search",
     "localizedTitle": "Search the thing",
+    "icon": "search_icon.png"
   ]
 
   private let testItem = UIApplicationShortcutItem(
     type: "Search",
     localizedTitle: "Search the thing",
     localizedSubtitle: nil,
-    icon: nil,
+    icon: UIApplicationShortcutIcon(templateImageName: "search_icon.png"),
     userInfo: nil)
 
   func testSetShortcutItems() {
