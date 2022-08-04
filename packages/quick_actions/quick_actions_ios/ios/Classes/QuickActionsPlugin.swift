@@ -18,17 +18,19 @@ public final class QuickActionsPlugin: NSObject, FlutterPlugin {
     registrar.addApplicationDelegate(instance)
   }
 
-  private let channel: MethodChannel
-  private let shortcutService: ShortcutItemsService
+  private let channel: FlutterMethodChannel
+  private let shortcutService: FLTShortcutStateManager
 
-  init(
-    channel: MethodChannel,
-    shortcutService: ShortcutItemsService = DefaultShortcutService())
+  @objc
+  public init(
+    channel: FlutterMethodChannel,
+    shortcutService: FLTShortcutStateManager = FLTShortcutStateManager())
   {
     self.channel = channel
     self.shortcutService = shortcutService
   }
 
+  @objc
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "setShortcutItems":
@@ -53,16 +55,16 @@ public final class QuickActionsPlugin: NSObject, FlutterPlugin {
   public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
     let shortcutItem = launchOptions[UIApplication.LaunchOptionsKey.shortcutItem]
     if let shortcutItem = shortcutItem as? UIApplicationShortcutItem {
-      self.shortcutService.activeShortcutType = shortcutItem.type
+      self.shortcutService.launchingShortcutType = shortcutItem.type
       return false
     }
     return true
   }
 
   public func applicationDidBecomeActive(_ application: UIApplication) {
-    if let shortcutType = shortcutService.activeShortcutType {
+    if let shortcutType = shortcutService.launchingShortcutType {
       handleShortcut(shortcutType)
-      shortcutService.activeShortcutType = nil
+      shortcutService.launchingShortcutType = nil
     }
   }
 

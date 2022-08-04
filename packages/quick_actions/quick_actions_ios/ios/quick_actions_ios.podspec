@@ -17,7 +17,11 @@ Downloaded by pub (not CocoaPods).
   s.source_files = 'Classes/**/*.{h,m,swift}'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.module_map = 'Classes/quick_actions_ios.modulemap'
   s.platform = :ios, '9.0'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  s.swift_version = '5.0'
+  s.xcconfig = {
+    'LIBRARY_SEARCH_PATHS' => '$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)/ $(SDKROOT)/usr/lib/swift',
+    'LD_RUNPATH_SEARCH_PATHS' => '/usr/lib/swift',
+  }
 end
