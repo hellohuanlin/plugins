@@ -14,7 +14,7 @@ Downloaded by pub (not CocoaPods).
   s.author           = { 'Flutter Dev Team' => 'flutter-dev@googlegroups.com' }
   s.source           = { :http => 'https://github.com/flutter/plugins/tree/main/packages/quick_actions' }
   s.documentation_url = 'https://pub.dev/packages/quick_actions'
-  s.source_files = 'Classes/**/*.{h,m}'
+  s.source_files = 'Classes/**/*.{h,m,swift}'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.module_map = 'Classes/quick_actions_ios.modulemap'
